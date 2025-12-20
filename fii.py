@@ -11,7 +11,7 @@ import streamlit_analytics as st_analytics
 # CONFIG STREAMLIT
 # =====================================================
 st.set_page_config(
-    page_title="FIIs Descontados com Qualidade",
+    page_title="FIIs Monitor",
     layout="centered"
 )
 
@@ -49,11 +49,10 @@ if not st.session_state.aviso_aceito:
 # =====================================================
 # TÍTULO E CONTEXTO
 # =====================================================
-st.title("📊 FIIs Descontados com Qualidade")
+st.title("📊 FIIs Monitor")
 
 st.caption(
-    "Seleção quantitativa diária de FIIs com desconto patrimonial, "
-    "boa liquidez e histórico consistente de dividendos."
+    "Seleção diária de FIIs com análises, simuladores e notícias em um só lugar."
 )
 
 
@@ -203,8 +202,8 @@ df_top10 = (
 # =====================================================
 # TABS
 # =====================================================
-tab1, tab2, tab3 = st.tabs(
-    ["📊 Top 10 FIIs", "📰 Notícias", "🔁 Simulador de Reinvestimento"]
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["📊 Top 10 FIIs", "📰 Notícias", "🔁 Simulador", "💼 Simulador de Carteira"]
 )
 
 
@@ -409,3 +408,84 @@ with tab3:
     )
 
 
+# =====================================================
+# TAB 4 — MINHA CARTEIRA
+# =====================================================
+with tab4:
+    st.subheader("💼 Simulação rápida da sua carteira de FIIs")
+    st.caption(
+        "Informe os FIIs e a quantidade de cotas para calcular "
+        "renda mensal estimada e DY da carteira."
+    )
+
+    # Seleção dos FIIs
+    fiis_selecionados = st.multiselect(
+        "Selecione os FIIs da sua carteira",
+        options=sorted(df["Fundos"].unique())
+    )
+
+    if not fiis_selecionados:
+        st.info("Selecione ao menos um FII para começar.")
+    else:
+        dados_carteira = []
+
+        for fii in fiis_selecionados:
+            row = df[df["Fundos"] == fii].iloc[0]
+
+            qtd = st.number_input(
+                f"Quantidade de cotas — {fii}",
+                min_value=0,
+                step=1,
+                key=f"qtd_{fii}"
+            )
+
+            if qtd > 0:
+                preco = row["Preço Atual (R$)"]
+                dy12 = row["DY (12M) Acumulado"]
+
+                valor_aplicado = qtd * preco
+                dividendo_mensal = valor_aplicado * (dy12 / 100) / 12
+
+                dados_carteira.append({
+                    "FII": fii,
+                    "Quantidade": qtd,
+                    "Preço Atual": preco,
+                    "Valor Aplicado": valor_aplicado,
+                    "DY 12M (%)": dy12,
+                    "Dividendo Mensal (R$)": dividendo_mensal
+                })
+
+        if dados_carteira:
+            df_carteira = pd.DataFrame(dados_carteira)
+
+            total_investido = df_carteira["Valor Aplicado"].sum()
+            total_div_mensal = df_carteira["Dividendo Mensal (R$)"].sum()
+
+            dy_mensal_carteira = (total_div_mensal / total_investido) * 100
+            dy_anual_carteira = dy_mensal_carteira * 12
+
+            st.divider()
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Valor investido", f"R$ {total_investido:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+            c2.metric("Renda mensal estimada", f"R$ {total_div_mensal:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+            c3.metric("DY mensal da carteira", f"{dy_mensal_carteira:.2f}%")
+
+            st.metric("DY anual estimado da carteira", f"{dy_anual_carteira:.2f}%")
+
+            st.divider()
+
+            st.dataframe(
+                df_carteira.style.format({
+                    "Preço Atual": "R$ {:.2f}",
+                    "Valor Aplicado": "R$ {:.2f}",
+                    "Dividendo Mensal (R$)": "R$ {:.2f}",
+                    "DY 12M (%)": "{:.2f}%"
+                }),
+                use_container_width=True
+            )
+
+            st.caption(
+                "⚠️ Valores estimados com base no DY histórico (12M). "
+                "Dividendos podem variar."
+            )
