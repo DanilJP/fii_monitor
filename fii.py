@@ -90,6 +90,14 @@ def carregar_dados():
         .astype(float) / 1_000
     )
 
+    df['Preço Atual (R$)'] = (
+        df['Preço Atual (R$)']
+        .astype(str)
+        .str.replace('.', '', regex=False)
+        .str.replace(',', '.', regex=False)
+        .astype(float)/100
+    )
+
     df.rename(columns={
         'Liquidez Diária (R$)': 'Liquidez Diária (milhões R$)',
         'Patrimônio Líquido': 'Patrimônio Líquido (milhões R$)',
@@ -151,40 +159,61 @@ else:
             st.markdown(f"### {row['Fundos']}")
             st.caption(f"Setor: {row['Setor']}")
 
-            # Métricas principais
-            st.metric(
-                label="P/VP",
-                value=f"{row['P/VP']:.2f}",
-                help="Preço em relação ao valor patrimonial"
-            )
+            cols_header = st.columns([1, 2, 3])
 
-            st.metric(
-                label="Dividend Yield (12M)",
-                value=f"{row['DY (12M) Acumulado']:.1f}%",
-                help="Dividendos acumulados nos últimos 12 meses"
-            )
-            rendimento_mes =row['DY (12M) Acumulado'] / 12
-            st.markdown(
-                f"""
-                **Rendimento médio por mês : <u>{rendimento_mes:.1f}%</u>**
-                """,unsafe_allow_html=True
-            )
+            with cols_header[0]:
+                st.metric(
+                    label="P/VP",
+                    value=f"{row['P/VP']:.2f}",
+                    help="Preço em relação ao valor patrimonial"
+                )
 
-            st.metric(
-                label="Liquidez Diária",
-                value=f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi",
-                help="Média diária negociada"
-            )
+            with cols_header[1]:
+                st.metric(
+                    label="Liquidez Diária",
+                    value=f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi",
+                    help="Média diária negociada"
+                )
+
+            with cols_header[2]:
+                st.metric(
+                    label="Preço Atual",
+                    value=f"R$ {row['Preço Atual (R$)']:.2f}",
+                    help="Valor total dos ativos do fundo"
+                )
+            cols = st.columns([1, 2])
+            with cols[0]:
+                st.metric(
+                    label="Dividend Yield (12M)",
+                    value=f"{row['DY (12M) Acumulado']:.1f}%",
+                    help="Dividendos acumulados nos últimos 12 meses"
+                )
+            rendimento_mes = (1 + (row['DY (12M) Acumulado']/100))**(1/12) - 1
+            rendimento_mes *= 100
+                        
+            with cols[1]:
+                st.markdown(
+                    f"""> Rendimento equivalente : <u>{rendimento_mes:.2f}%</u> ao mês""",unsafe_allow_html=True
+                )
+
 
             # DY recente compacto
             st.markdown(
-                f"""
-                **Dividendos recentes**
-                - 3 meses: `{row['DY (3M) Acumulado']:.1f}%`
-                - 6 meses: `{row['DY (6M) Acumulado']:.1f}%`
-                """
-            )
+                f"""DY 3 meses: {row['DY (3M) Acumulado']:.1f}% > Equivalente : <u>{((1 + (row['DY (3M) Acumulado']/100))**(1/3) - 1)*100:.2f}%</u> ao mês""", unsafe_allow_html=True)
+            
+            st.markdown(
+                f""" **DY 6 meses: {row['DY (6M) Acumulado']:.1f}%** > Equivalente : <u>{((1 + (row['DY (6M) Acumulado']/100))**(1/6) - 1)*100:.2f}%</u> ao mês""", unsafe_allow_html=True)
 
+            ticker = row['Fundos'].split(" - ")[0]
+            st.markdown(
+                f"""
+                <a href="https://www.fundsexplorer.com.br/fiagros/{ticker}" target="_blank">
+                    🔗 Olhar mais detalhes do FII
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
+            st.write("")
             # Detalhes
             with st.expander("🔎 Ver detalhes do fundo"):
                 st.markdown(
