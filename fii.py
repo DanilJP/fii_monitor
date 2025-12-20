@@ -298,13 +298,16 @@ with tab2:
     if noticias == 'primeiro':
         st.info('Selecione o FII deseja buscar notícias e clique no botão acima.')
     else:
-        for n in noticias:
-            st.markdown(
-                f"""
-                **📰 {n['titulo']}**  
-                <a href="{n['link']}" target="_blank">Ler notícia</a>  
-                <small>{n['data']}</small>
-                """,
-                unsafe_allow_html=True
-            )
-            st.divider()
+        if len(noticias) == 0:
+            st.warning("Nenhuma notícia recente encontrada para este FII.")
+        else:
+            for n in noticias:
+                st.markdown(
+                    f"""
+                    **📰 {n['titulo']}**  
+                    <a href="{n['link']}" target="_blank">Ler notícia</a>  
+                    <small>{n['data']}</small>
+                    """,
+                    unsafe_allow_html=True
+                )
+                st.divider()
