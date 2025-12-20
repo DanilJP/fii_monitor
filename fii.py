@@ -337,6 +337,7 @@ with tab2:
 # TAB 3 — SIMULADOR DE REINVESTIMENTO
 # =====================================================
 with tab3:
+    df_reinvestimento = df.copy()
     st.subheader("🔁 Simulador de Reinvestimento de Dividendos")
 
     st.caption(
@@ -346,10 +347,10 @@ with tab3:
 
     fii_simulador = st.selectbox(
         "Selecione o FII",
-        df_filtrados["Fundos"].unique()
+        df_reinvestimento["Fundos"].unique(),key="fii_simulador"
     )
 
-    row = df_filtrados[df_filtrados["Fundos"] == fii_simulador].iloc[0]
+    row = df_reinvestimento[df_reinvestimento["Fundos"] == fii_simulador].iloc[0]
 
     preco = row["Preço Atual (R$)"]
     dy12 = row["DY (12M) Acumulado"]
