@@ -12,6 +12,37 @@ st.set_page_config(
 )
 
 # =====================================================
+# AVISO LEGAL — POPUP APENAS NA PRIMEIRA VISITA
+# =====================================================
+if "aviso_aceito" not in st.session_state:
+    st.session_state.aviso_aceito = False
+
+@st.dialog("⚠️ Aviso importante")
+def aviso_legal():
+    st.markdown(
+        """
+        **Antes de continuar, leia com atenção:**
+
+        - Este aplicativo **não é recomendação de investimento**.
+        - A análise é **quantitativa e baseada em dados históricos**.
+        - Dividendos passados **não garantem resultados futuros**.
+        - Emissões, alavancagem, eventos de crédito ou fatos relevantes
+          podem não estar refletidos imediatamente nos dados.
+
+        👉 **Sempre consulte relatórios gerenciais e comunicados oficiais.**
+        """
+    )
+
+    if st.button("✅ Entendi e desejo continuar"):
+        st.session_state.aviso_aceito = True
+        st.rerun()
+
+# Mostrar o popup apenas se ainda não foi aceito
+if not st.session_state.aviso_aceito:
+    aviso_legal()
+    st.stop()
+
+# =====================================================
 # TÍTULO E CONTEXTO
 # =====================================================
 st.title("📊 FIIs Descontados com Qualidade")
@@ -21,19 +52,6 @@ st.caption(
     "boa liquidez e histórico consistente de dividendos."
 )
 
-st.warning(
-    """
-    **Aviso importante**
-    
-    - Este aplicativo **não é recomendação de investimento**.
-    - A análise é **quantitativa e baseada em dados históricos**.
-    - Dividendos passados **não garantem resultados futuros**.
-    - Emissões, alavancagem, eventos de crédito ou fatos relevantes
-      podem não estar refletidos imediatamente nos dados.
-    
-    Sempre consulte relatórios gerenciais e comunicados oficiais.
-    """
-)
 
 # =====================================================
 # LOAD E TRATAMENTO DOS DADOS
