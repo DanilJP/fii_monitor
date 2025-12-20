@@ -202,9 +202,17 @@ df_top10 = (
 # =====================================================
 # TABS
 # =====================================================
-tab1, tab2, tab3, tab4 = st.tabs(
-    ["📊 Top 10 FIIs", "📰 Notícias", "🔁 Simulador", "💼 Simulador de Carteira"]
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    [
+        "📊 Top 10 Descontados",
+        "🏦 Grandes FIIs",
+        "💸 FIIs de Entrada",
+        "📰 Notícias",
+        "🔁 Simulador",
+        "💼 Simulador de Carteira"
+    ]
 )
+
 
 
 # =====================================================
@@ -298,7 +306,7 @@ with tab1:
 # =====================================================
 # TAB 3 — NOTÍCIAS
 # =====================================================
-with tab2:
+with tab4:
     st.subheader("📰 Notícias recentes por FII")
 
     ticker_noticia = st.selectbox(
@@ -335,7 +343,7 @@ with tab2:
 # =====================================================
 # TAB 3 — SIMULADOR DE REINVESTIMENTO
 # =====================================================
-with tab3:
+with tab4:
     df_reinvestimento = df.copy()
     st.subheader("🔁 Simulador de Reinvestimento de Dividendos")
 
@@ -411,7 +419,7 @@ with tab3:
 # =====================================================
 # TAB 4 — MINHA CARTEIRA
 # =====================================================
-with tab4:
+with tab5:
     st.subheader("💼 Simulação rápida da sua carteira de FIIs")
     st.caption(
         "Informe os FIIs e a quantidade de cotas para calcular "
@@ -489,3 +497,56 @@ with tab4:
                 "⚠️ Valores estimados com base no DY histórico (12M). "
                 "Dividendos podem variar."
             )
+
+# =====================================================
+# TAB — GRANDES FIIs
+# =====================================================
+with tab2:
+    st.subheader("🏦 Grandes FIIs (Blue Chips)")
+    st.caption("FIIs de grande porte, alta liquidez e relevância no mercado.")
+
+    df_grandes = df[
+        (df["Patrimônio Líquido (milhões R$)"] >= 5_000) &
+        (df["Liquidez Diária (milhões R$)"] >= 5)
+    ].sort_values(
+        "Patrimônio Líquido (milhões R$)", ascending=False
+    ).head(5)
+
+    if df_grandes.empty:
+        st.warning("Nenhum FII atende aos critérios.")
+    else:
+        for _, row in df_grandes.iterrows():
+            with st.container(border=True):
+                st.markdown(f"### {row['Fundos']}")
+                st.caption(f"Setor: {row['Setor']}")
+
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
+                c2.metric("Liquidez", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
+                c3.metric("Patrimônio", f"R$ {(row['Patrimônio Líquido (milhões R$)']/1000):.2f} bi")
+                c4.metric("P/VP", f"{row['P/VP']:.2f}")
+                st.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
+
+# =====================================================
+# TAB — FIIs DE ENTRADA
+# =====================================================
+with tab3:
+    st.subheader("💸 FIIs de Entrada (baixo preço)")
+    st.caption("FIIs com preço acessível por cota e renda recorrente.")
+
+    df_entrada = df_filtrados[(df["Preço Atual (R$)"] <= 30)].sort_values(
+        "DY (12M) Acumulado", ascending=False
+    ).head(5)
+
+    if df_entrada.empty:
+        st.warning("Nenhum FII atende aos critérios.")
+    else:
+        for _, row in df_entrada.iterrows():
+            with st.container(border=True):
+                st.markdown(f"### {row['Fundos']}")
+                st.caption(f"Setor: {row['Setor']}")
+
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
+                c2.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
+                c3.metric("Liquidez", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
