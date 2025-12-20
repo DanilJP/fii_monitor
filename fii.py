@@ -13,7 +13,7 @@ st.set_page_config(
 # =====================================================
 # TÍTULO E CONTEXTO
 # =====================================================
-st.title("📌 FIIs Descontados com Qualidade")
+st.title("📊 FIIs Descontados com Qualidade")
 
 st.caption(
     "Lista diária de FIIs que passam em critérios rígidos de preço, "
@@ -30,7 +30,7 @@ st.info(
 # =====================================================
 # CONTROLE DE CACHE
 # =====================================================
-if st.button("🧹 Limpar cache de dados"):
+if st.button("🧹 Atualizado a página ai Tekinildas"):
     st.cache_data.clear()
     st.success("Cache limpo com sucesso!")
     st.rerun()
@@ -120,11 +120,9 @@ def filtrar_fiis_descontados_com_qualidade(df):
 df = carregar_dados()
 df_filtrados = filtrar_fiis_descontados_com_qualidade(df)
 
-st.write(f"🕒 Atualizado em **{datetime.now().strftime('%d/%m/%Y %H:%M')}**")
+st.write(f"🕒 Atualizado em **{datetime.now().strftime('%d/%m/%Y')}**")
 
-# =====================================================
 # UI MOBILE-FIRST
-# =====================================================
 fiis_achados = len(df_filtrados)
 
 df_top10 = (
@@ -164,6 +162,12 @@ else:
                 label="Dividend Yield (12M)",
                 value=f"{row['DY (12M) Acumulado']:.1f}%",
                 help="Dividendos acumulados nos últimos 12 meses"
+            )
+            rendimento_mes =row['DY (12M) Acumulado'] / 12
+            st.markdown(
+                f"""
+                **Rendimento médio por mês : <u>{rendimento_mes:.1f}%</u>**
+                """,unsafe_allow_html=True
             )
 
             st.metric(
