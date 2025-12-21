@@ -361,8 +361,8 @@ with tab3:
     st.caption("Fundos com cotas mais acessíveis e bom histórico de dividendos.")
 
     df_entrada = (
-        df[(df["Preço Atual (R$)"] <= 30) &
-           (df["DY (12M) Acumulado"] <= 24)]
+        df_filtrados[(df_filtrados["Preço Atual (R$)"] <= 30) &
+           (df_filtrados["DY (12M) Acumulado"] <= 24)]
         .sort_values("DY (12M) Acumulado", ascending=False)
         .head(5)
     )
