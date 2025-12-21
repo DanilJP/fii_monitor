@@ -202,13 +202,15 @@ df_top10 = (
 # =====================================================
 # TABS
 # =====================================================
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(
     [
         "📊 Top 10 Descontados",
         "🏦 Grandes FIIs",
         "💸 FIIs de Entrada",
+        "🧠 Screener Personalizado",
+        "⚖️ Comparador de FIIs",
         "📰 Notícias",
-        "🔁 Simulador",
+        "🔁 Simluador de Reivestimento",
         "💼 Simulador de Carteira"
     ]
 )
@@ -302,11 +304,195 @@ with tab1:
                 for i, fii in enumerate(fiis):
                     cols[i % 3].markdown(f"- {fii}")
 
+# =====================================================
+# TAB — GRANDES FIIs
+# =====================================================
+
+with tab2:
+    st.subheader("🏦 Grandes FIIs do Mercado")
+    st.caption("FIIs com maior patrimônio e alta relevância no mercado.")
+
+    df_grandes = (
+        df.sort_values("Patrimônio Líquido (milhões R$)", ascending=False)
+        .head(5)
+    )
+
+    for _, row in df_grandes.iterrows():
+        with st.container(border=True):
+            st.markdown(f"### {row['Fundos']}")
+            st.caption(f"Setor: {row['Setor']}")
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
+            c2.metric("P/VP", f"{row['P/VP']:.2f}")
+            c3.metric("Liquidez", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
+
+            st.metric(
+                "Patrimônio Líquido",
+                f"R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi"
+            )
+
+            ticker = row["Fundos"].split(" - ")[0]
+            st.markdown(
+                f"""
+                <a href="https://www.fundsexplorer.com.br/funds/{ticker}" target="_blank">
+                    🔗 Ver no Funds Explorer
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
+            st.write('')
+
+
+# =====================================================
+# TAB — FIIs DE ENTRADA
+# =====================================================
+with tab3:
+    st.subheader("💸 FIIs de Entrada (até R$ 30)")
+    st.caption("Fundos com cotas mais acessíveis e bom histórico de dividendos.")
+
+    df_entrada = (
+        df[df["Preço Atual (R$)"] <= 30]
+        .sort_values("DY (12M) Acumulado", ascending=False)
+        .head(5)
+    )
+
+    for _, row in df_entrada.iterrows():
+        with st.container(border=True):
+            st.markdown(f"### {row['Fundos']}")
+            st.caption(f"Setor: {row['Setor']}")
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
+            c2.metric("P/VP", f"{row['P/VP']:.2f}")
+            c3.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
+
+            ticker = row["Fundos"].split(" - ")[0]
+            st.markdown(
+                f"""
+                <a href="https://www.fundsexplorer.com.br/funds/{ticker}" target="_blank">
+                    🔗 Ver no Funds Explorer
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
+            st.write('')
+
+
+# =====================================================
+# TAB — SCREENER PERSONALIZADO
+# =====================================================
+with tab4:
+    st.subheader("🧠 Screener Personalizado de FIIs")
+    st.caption("Crie seus próprios filtros para encontrar FIIs que façam sentido para você.")
+
+    c1, c2, c3 = st.columns(3)
+
+    pv_min, pv_max = c1.slider("P/VP", 0.5, 1.5, (0.8, 1.0))
+    dy_min = c2.slider("DY 12M mínimo (%)", 5.0, 20.0, 9.0)
+    preco_max = c3.slider("Preço máximo da cota (R$)", 5.0, 150.0, 100.0)
+
+    c4, c5, c6 = st.columns(3)
+    liquidez_min = c4.slider("Liquidez mínima (R$ mi)", 0.5, 10.0, 1.0)
+    pl_min = c5.slider("Patrimônio mínimo (R$ mi)", 100.0, 10_000.0, 500.0)
+    cotistas_min = c6.slider("Cotistas mínimos (mil)", 1.0, 200.0, 10.0)
+
+    df_screener = df[
+        (df["P/VP"].between(pv_min, pv_max)) &
+        (df["DY (12M) Acumulado"] >= dy_min) &
+        (df["Preço Atual (R$)"] <= preco_max) &
+        (df["Liquidez Diária (milhões R$)"] >= liquidez_min) &
+        (df["Patrimônio Líquido (milhões R$)"] >= pl_min) &
+        (df["Num. Cotistas (milhares)"] >= cotistas_min)
+    ].sort_values("DY (12M) Acumulado", ascending=False)
+
+    st.divider()
+    st.success(f"{len(df_screener)} FIIs encontrados")
+
+    st.dataframe(
+        df_screener[
+            [
+                "Fundos",
+                "Setor",
+                "Preço Atual (R$)",
+                "P/VP",
+                "DY (12M) Acumulado",
+                "Liquidez Diária (milhões R$)"
+            ]
+        ],
+        use_container_width=True
+    )
+
+# =====================================================
+# TAB 5 — COMPARADOR DE FIIs
+# =====================================================
+with tab5:
+    st.subheader("⚖️ Comparador de FIIs")
+    st.caption("Compare dois FIIs e veja quem vence em cada métrica.")
+
+    c1, c2 = st.columns(2)
+    fii_a = c1.selectbox("FII A", sorted(df["Fundos"].unique()), key="fii_a")
+    fii_b = c2.selectbox("FII B", sorted(df["Fundos"].unique()), key="fii_b")
+
+    if fii_a != fii_b:
+        a = df[df["Fundos"] == fii_a].iloc[0]
+        b = df[df["Fundos"] == fii_b].iloc[0]
+
+        pontos_a = 0
+        pontos_b = 0
+
+        comparacao = [
+            ("Preço da cota (menor melhor)", a["Preço Atual (R$)"], b["Preço Atual (R$)"], False),
+            ("P/VP (menor melhor)", a["P/VP"], b["P/VP"], False),
+            ("DY 12M (maior melhor)", a["DY (12M) Acumulado"], b["DY (12M) Acumulado"], True),
+            ("Liquidez (maior melhor)", a["Liquidez Diária (milhões R$)"], b["Liquidez Diária (milhões R$)"], True),
+            ("Patrimônio (maior melhor)", a["Patrimônio Líquido (milhões R$)"], b["Patrimônio Líquido (milhões R$)"], True),
+        ]
+
+        st.divider()
+
+        for nome, va, vb, maior_melhor in comparacao:
+            if va == vb:
+                vencedor = "Empate"
+            elif maior_melhor:
+                vencedor = fii_a if va > vb else fii_b
+            else:
+                vencedor = fii_a if va < vb else fii_b
+
+            if vencedor == fii_a:
+                pontos_a += 1
+            elif vencedor == fii_b:
+                pontos_b += 1
+
+            st.markdown(
+                f"""
+                **{nome}**  
+                - {fii_a}: `{va:.2f}`  
+                - {fii_b}: `{vb:.2f}`  
+                🏆 **Vencedor:** {vencedor}
+                """
+            )
+            st.divider()
+
+        # Resultado final
+        st.subheader("🏁 Resultado final")
+
+        if pontos_a > pontos_b:
+            st.success(f"✅ **{fii_a} vence por {pontos_a} x {pontos_b}**")
+        elif pontos_b > pontos_a:
+            st.success(f"✅ **{fii_b} vence por {pontos_b} x {pontos_a}**")
+        else:
+            st.info(f"⚖️ **Empate técnico: {pontos_a} x {pontos_b}**")
+
+    else:
+        st.info("Selecione dois FIIs diferentes para comparar.")
+
+
 
 # =====================================================
 # TAB 3 — NOTÍCIAS
 # =====================================================
-with tab4:
+with tab6:
     st.subheader("📰 Notícias recentes por FII")
 
     ticker_noticia = st.selectbox(
@@ -343,7 +529,7 @@ with tab4:
 # =====================================================
 # TAB 3 — SIMULADOR DE REINVESTIMENTO
 # =====================================================
-with tab4:
+with tab7:
     df_reinvestimento = df.copy()
     st.subheader("🔁 Simulador de Reinvestimento de Dividendos")
 
@@ -419,7 +605,7 @@ with tab4:
 # =====================================================
 # TAB 4 — MINHA CARTEIRA
 # =====================================================
-with tab5:
+with tab8:
     st.subheader("💼 Simulação rápida da sua carteira de FIIs")
     st.caption(
         "Informe os FIIs e a quantidade de cotas para calcular "
@@ -498,55 +684,4 @@ with tab5:
                 "Dividendos podem variar."
             )
 
-# =====================================================
-# TAB — GRANDES FIIs
-# =====================================================
-with tab2:
-    st.subheader("🏦 Grandes FIIs (Blue Chips)")
-    st.caption("FIIs de grande porte, alta liquidez e relevância no mercado.")
 
-    df_grandes = df[
-        (df["Patrimônio Líquido (milhões R$)"] >= 5_000) &
-        (df["Liquidez Diária (milhões R$)"] >= 5)
-    ].sort_values(
-        "Patrimônio Líquido (milhões R$)", ascending=False
-    ).head(5)
-
-    if df_grandes.empty:
-        st.warning("Nenhum FII atende aos critérios.")
-    else:
-        for _, row in df_grandes.iterrows():
-            with st.container(border=True):
-                st.markdown(f"### {row['Fundos']}")
-                st.caption(f"Setor: {row['Setor']}")
-
-                c1, c2, c3, c4 = st.columns(4)
-                c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
-                c2.metric("Liquidez", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
-                c3.metric("Patrimônio", f"R$ {(row['Patrimônio Líquido (milhões R$)']/1000):.2f} bi")
-                c4.metric("P/VP", f"{row['P/VP']:.2f}")
-                st.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
-
-# =====================================================
-# TAB — FIIs DE ENTRADA
-# =====================================================
-with tab3:
-    st.subheader("💸 FIIs de Entrada (baixo preço)")
-    st.caption("FIIs com preço acessível por cota e renda recorrente.")
-
-    df_entrada = df_filtrados[(df["Preço Atual (R$)"] <= 30)].sort_values(
-        "DY (12M) Acumulado", ascending=False
-    ).head(5)
-
-    if df_entrada.empty:
-        st.warning("Nenhum FII atende aos critérios.")
-    else:
-        for _, row in df_entrada.iterrows():
-            with st.container(border=True):
-                st.markdown(f"### {row['Fundos']}")
-                st.caption(f"Setor: {row['Setor']}")
-
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
-                c2.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
-                c3.metric("Liquidez", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
