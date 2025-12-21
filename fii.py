@@ -296,13 +296,13 @@ with tab1:
                         """
                     )
 
-            with st.expander(f"📋 Demais FIIs aprovados nos critérios - {len(df_filtrados)} FIIs", expanded=False):
-                fiis = sorted(df_filtrados["Fundos"].unique())
+        with st.expander(f"📋 Demais FIIs aprovados nos critérios - {len(df_filtrados)} FIIs", expanded=False):
+            fiis = sorted(df_filtrados["Fundos"].unique())
 
-                cols = st.columns(3)
+            cols = st.columns(3)
 
-                for i, fii in enumerate(fiis):
-                    cols[i % 3].markdown(f"- {fii}")
+            for i, fii in enumerate(fiis):
+                cols[i % 3].markdown(f"- {fii}")
 
 # =====================================================
 # TAB — GRANDES FIIs
