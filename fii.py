@@ -703,7 +703,7 @@ with tab9:
     st.subheader("📘 Entenda as principais métricas dos FIIs")
     st.caption("Uma explicação simples e direta para quem está começando.")
 
-    with st.expander("📉 P/VP — Preço sobre Valor Patrimonial", expanded=True):
+    with st.expander("📉 P/VP — Preço sobre Valor Patrimonial", expanded=False):
         st.markdown(
             """
             O **P/VP** compara o preço da cota com o valor patrimonial do fundo.
