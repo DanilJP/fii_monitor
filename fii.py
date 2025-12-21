@@ -329,7 +329,7 @@ with tab2:
 
             st.metric(
                 "Patrimônio Líquido",
-                f"R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi"
+                f"R$ {(row['Patrimônio Líquido (milhões R$)']/1000):.0f} bi"
             )
 
             ticker = row["Fundos"].split(" - ")[0]
