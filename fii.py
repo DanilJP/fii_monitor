@@ -5,8 +5,6 @@ import feedparser
 from datetime import datetime, timedelta
 from urllib.parse import quote
 
-import streamlit_analytics as st_analytics
-
 # =====================================================
 # CONFIG STREAMLIT
 # =====================================================
@@ -14,6 +12,17 @@ st.set_page_config(
     page_title="FIIs Monitor",
     layout="centered"
 )
+
+SELIC_ANUAL = 15.0*(1-0.225)  # referência aproximada
+
+def comparar_com_selic(dy):
+    if dy > SELIC_ANUAL + 2:
+        return "Acima da Selic"
+    elif dy < SELIC_ANUAL - 2:
+        return "Abaixo da Selic"
+    else:
+        return "Em linha com a Selic"
+
 
 # =====================================================
 # AVISO LEGAL — POPUP APENAS NA PRIMEIRA VISITA
@@ -176,9 +185,11 @@ def buscar_noticias(ticker, max_noticias=10):
 
         if len(noticias) >= max_noticias:
             break
+    st.caption(f"{len(noticias)} notícias encontradas nos últimos 30 dias")
+    if len(noticias) >= 5:
+        st.warning("Volume elevado de notícias — vale investigar o motivo.")
 
     return noticias
-
 
 
 # =====================================================
@@ -199,11 +210,66 @@ df_top10 = (
     .head(10)
 )
 
+def calcular_rendimento_mensal(dy12):
+    return ((1 + dy12 / 100) ** (1 / 12) - 1) * 100
+
+def fii_cards(df_top10):
+    for _, row in df_top10.iterrows():
+        with st.container(border=True):
+
+            st.markdown(f"### {row['Fundos']}")
+            st.caption(f"Setor: {row['Setor']}")
+
+
+            c1, c2, c3 = st.columns(3)
+
+            c1.metric("P/VP", f"{row['P/VP']:.2f}")
+            c2.metric("Liquidez Diária", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
+            c3.metric("Preço Atual", f"R$ {row['Preço Atual (R$)']:.2f}")
+
+            dy12 = row['DY (12M) Acumulado']
+            status_selic = comparar_com_selic(dy12)
+            st.caption(
+                f"Referência Selic: {status_selic} "
+                f"(DY 12M: {dy12:.1f}% | Selic (com IR) ref.: {SELIC_ANUAL:.1f}%)"
+            )
+            rendimento_mes = calcular_rendimento_mensal(dy12)
+
+            st.metric("Dividend Yield (12M)", f"{dy12:.1f}%")
+            st.markdown(
+                f"> Rendimento equivalente: <u>{rendimento_mes:.2f}%</u> ao mês",
+                unsafe_allow_html=True
+            )
+
+            ticker = row['Fundos'].split(" - ")[0]
+            st.markdown(
+                f"""
+                <a href="https://www.fundsexplorer.com.br/fiagros/{ticker}" target="_blank">
+                    🔗 Explorar FII
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
+            st.write('')
+
+            with st.expander("🔎 Detalhes do fundo"):
+                st.markdown(
+                    f"""
+                    - **Patrimônio Líquido:** R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi  
+                    - **Cotistas:** {row['Num. Cotistas (milhares)']:.0f} mil  
+                    - **Último Dividendo: R$ {row['Último Dividendo']:.2f}**  
+                    - **DY (3M) Acumulado:** {row['DY (3M) Acumulado']:.1f}%  
+                    - **DY (6M) Acumulado:** {row['DY (6M) Acumulado']:.1f}%  
+                    """
+                )
+
 # =====================================================
 # TABS
 # =====================================================
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(
+tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8,tab9 = st.tabs(
     [
+        "🏠 Início",
+        "📘 Entenda as Métricas",
         "📊 Top 10 Descontados",
         "🏦 Grandes FIIs",
         "💸 FIIs de Entrada",
@@ -211,18 +277,145 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(
         "⚖️ Comparador de FIIs",
         "📰 Notícias",
         "🔁 Simulador de Reinvestimento",
-        "💼 Simulador de Carteira",
-        "📘 Entenda as Métricas"
+        "💼 Simulador de Carteira"
     ]
 )
 
+# =====================================================
+# TAB 0 — INÍCIO
+# =====================================================
 
+with tab0:
+    st.subheader("📌 Bem-vindo ao FIIs Monitor")
 
+    st.markdown(
+        """
+        **FIIs Monitor** é um ecossistema para apoiar decisões em Fundos Imobiliários (FIIs),
+        reunindo análises quantitativas, rankings prontos, simuladores e notícias em um só lugar.
+        """
+    )
+
+    st.divider()
+
+    st.markdown("### 🧭 Como usar o FIIs Monitor")
+
+    st.markdown(
+        """
+        **1️⃣ Comece pelos rankings prontos**
+        - **Top 10 Descontados**: FIIs com desconto patrimonial e dividendos consistentes  
+        - **Grandes FIIs**: fundos mais sólidos e relevantes do mercado  
+        - **FIIs de Entrada**: fundos com cotas mais acessíveis para começar
+
+        **2️⃣ Aprofunde com ferramentas interativas**
+        - **Screener Personalizado**: crie seus próprios filtros  
+        - **Comparador de FIIs**: compare dois fundos e veja quem se destaca em cada métrica
+
+        **3️⃣ Planeje sua estratégia**
+        - **Simulador de Reinvestimento**: veja quantas cotas são necessárias para reinvestir via dividendos  
+        - **Simulador de Carteira**: estime renda mensal e DY da sua carteira
+
+        **4️⃣ Acompanhe o contexto**
+        - **Notícias recentes** centralizadas por FII
+        """
+    )
+
+    st.divider()
+
+    st.markdown("### 🧪 Metodologia")
+
+    st.markdown(
+        """
+        Os rankings do FIIs Monitor utilizam **critérios quantitativos objetivos**, como:
+        - P/VP  
+        - Dividend Yield histórico (3M, 6M e 12M)  
+        - Liquidez diária  
+        - Patrimônio líquido  
+        - Número de cotistas  
+
+        Cada ranking possui **regras próprias**, pensadas para diferentes perfis e objetivos.
+        """
+    )
+
+    st.divider()
+
+    st.info(
+        "⚠️ Este aplicativo não constitui recomendação de investimento. "
+        "As análises são baseadas em dados históricos e critérios quantitativos."
+    )
 
 # =====================================================
-# TAB 1 — TOP 10
+# TAB 1 — EXPLICAÇÃO DAS MÉTRICAS
 # =====================================================
+
 with tab1:
+    st.subheader("📘 Entendendo as principais métricas dos FIIs")
+
+    with st.expander("📉 P/VP (Preço / Valor Patrimonial)", expanded=False):
+        st.markdown(
+            """
+            O **P/VP** compara o preço da cota com o valor patrimonial do fundo.
+
+            - **P/VP < 1** → o mercado está pagando menos do que o valor patrimonial  
+            - **P/VP ≈ 1** → preço próximo do valor justo  
+            - **P/VP > 1** → mercado paga um prêmio pelo fundo  
+
+            Um P/VP baixo pode indicar **oportunidade** ou **risco percebido** pelo mercado.
+            """
+        )
+
+    with st.expander("💰 Dividend Yield (DY)"):
+        st.markdown(
+            """
+            O **Dividend Yield (DY)** indica quanto o fundo pagou de dividendos
+            em relação ao preço da cota.
+
+            No FIIs Monitor usamos:
+            - **DY 3M**: tendência recente  
+            - **DY 6M**: estabilidade  
+            - **DY 12M**: visão de longo prazo  
+
+            Dividendos passados **não garantem pagamentos futuros**.
+            """
+        )
+
+    with st.expander("💧 Liquidez"):
+        st.markdown(
+            """
+            A **liquidez** mostra quanto é negociado por dia no mercado.
+
+            Maior liquidez significa:
+            - mais facilidade para comprar e vender  
+            - menor risco de distorções de preço
+            """
+        )
+
+    with st.expander("🏢 Patrimônio Líquido"):
+        st.markdown(
+            """
+            Representa o tamanho do fundo.
+
+            Fundos maiores tendem a:
+            - ser mais estáveis  
+            - ter mais ativos  
+            - ter mais investidores acompanhando
+            """
+        )
+
+    with st.expander("👥 Número de Cotistas"):
+        st.markdown(
+            """
+            Indica quantos investidores possuem o fundo.
+
+            Um número maior de cotistas geralmente indica:
+            - maior acompanhamento do mercado  
+            - maior relevância  
+            """
+        )
+
+# =====================================================
+# TAB 2 — TOP 10
+# =====================================================
+with tab2:
 
     if df_top10.empty:
         st.warning("Nenhum FII atende aos critérios hoje.")
@@ -249,54 +442,7 @@ with tab1:
                 """
             )
 
-        for _, row in df_top10.iterrows():
-            with st.container(border=True):
-
-                st.markdown(f"### {row['Fundos']}")
-                st.caption(f"Setor: {row['Setor']}")
-
-                c1, c2, c3 = st.columns(3)
-
-                c1.metric("P/VP", f"{row['P/VP']:.2f}")
-                c2.metric("Liquidez Diária", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
-                c3.metric("Preço Atual", f"R$ {row['Preço Atual (R$)']:.2f}")
-
-                dy12 = row['DY (12M) Acumulado']
-                rendimento_mes = ((1 + dy12 / 100) ** (1 / 12) - 1) * 100
-
-                st.metric("Dividend Yield (12M)", f"{dy12:.1f}%")
-                st.markdown(
-                    f"> Rendimento equivalente: <u>{rendimento_mes:.2f}%</u> ao mês",
-                    unsafe_allow_html=True
-                )
-
-                # if dy12 > 15:
-                #     st.warning("⚠️ DY elevado — verifique sustentabilidade")
-
-                # if row["P/VP"] < 0.9:
-                #     st.success("📉 Negociado com desconto relevante")
-
-                ticker = row['Fundos'].split(" - ")[0]
-                st.markdown(
-                    f"""
-                    <a href="https://www.fundsexplorer.com.br/fiagros/{ticker}" target="_blank">
-                        🔗 Explorar FII
-                    </a>
-                    """,
-                    unsafe_allow_html=True
-                )
-                st.write('')
-
-                with st.expander("🔎 Detalhes do fundo"):
-                    st.markdown(
-                        f"""
-                        - **Patrimônio Líquido:** R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi  
-                        - **Cotistas:** {row['Num. Cotistas (milhares)']:.0f} mil  
-                        - **Último Dividendo: R$ {row['Último Dividendo']:.2f}**  
-                        - **DY (3M) Acumulado:** {row['DY (3M) Acumulado']:.1f}%  
-                        - **DY (6M) Acumulado:** {row['DY (6M) Acumulado']:.1f}%  
-                        """
-                    )
+        fii_cards(df_top10)
 
         with st.expander(f"📋 Demais FIIs aprovados nos critérios - {len(df_filtrados)} FIIs", expanded=False):
             fiis = sorted(df_filtrados["Fundos"].unique())
@@ -310,7 +456,7 @@ with tab1:
 # TAB — GRANDES FIIs
 # =====================================================
 
-with tab2:
+with tab3:
     st.subheader("🏦 Grandes FIIs do Mercado")
     st.caption("FIIs com maior patrimônio e alta relevância no mercado.")
 
@@ -319,46 +465,16 @@ with tab2:
         .head(5)
     )
 
-    for _, row in df_grandes.iterrows():
-        with st.container(border=True):
-            st.markdown(f"### {row['Fundos']}")
-            st.caption(f"Setor: {row['Setor']}")
-
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
-            c2.metric("P/VP", f"{row['P/VP']:.2f}")
-            c3.metric("Liquidez", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
-
-            st.metric(
-                "Patrimônio Líquido",
-                f"R$ {(row['Patrimônio Líquido (milhões R$)']/1000):.2f} bi"
-            )
-
-            ticker = row["Fundos"].split(" - ")[0]
-            st.markdown(
-                f"""
-                <a href="https://www.fundsexplorer.com.br/funds/{ticker}" target="_blank">
-                    🔗 Explorar FII
-                </a>
-                """,
-                unsafe_allow_html=True
-            )
-            st.write('')
-            with st.expander("🔎 Detalhes do fundo"):
-                st.markdown(
-                    f"""
-                    - **Cotistas:** {row['Num. Cotistas (milhares)']:.0f} mil  
-                    - **Último Dividendo: R$ {row['Último Dividendo']:.2f}**  
-                    - **DY (3M) Acumulado:** {row['DY (3M) Acumulado']:.1f}%  
-                    - **DY (6M) Acumulado:** {row['DY (6M) Acumulado']:.1f}%  
-                    """
-                )
+    if df_grandes.empty:
+        st.warning("Nenhum FII atende aos critérios hoje.")
+    else:
+        fii_cards(df_grandes)
 
 
 # =====================================================
 # TAB — FIIs DE ENTRADA
 # =====================================================
-with tab3:
+with tab4:
     st.subheader("💸 FIIs de Entrada (até R$ 30)")
     st.caption("Fundos com cotas mais acessíveis e bom histórico de dividendos.")
 
@@ -369,32 +485,16 @@ with tab3:
         .head(5)
     )
 
-    for _, row in df_entrada.iterrows():
-        with st.container(border=True):
-            st.markdown(f"### {row['Fundos']}")
-            st.caption(f"Setor: {row['Setor']}")
-
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
-            c2.metric("P/VP", f"{row['P/VP']:.2f}")
-            c3.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
-
-            ticker = row["Fundos"].split(" - ")[0]
-            st.markdown(
-                f"""
-                <a href="https://www.fundsexplorer.com.br/funds/{ticker}" target="_blank">
-                    🔗 Explorar FII
-                </a>
-                """,
-                unsafe_allow_html=True
-            )
-            st.write('')
+    if df_entrada.empty:
+        st.warning("Nenhum FII de entrada atende aos critérios hoje.")
+    else:
+        fii_cards(df_entrada)
 
 
 # =====================================================
 # TAB — SCREENER PERSONALIZADO
 # =====================================================
-with tab4:
+with tab5:
     st.subheader("🧠 Screener Personalizado de FIIs")
     st.caption("Crie seus próprios filtros para encontrar FIIs que façam sentido para você.")
 
@@ -438,7 +538,7 @@ with tab4:
 # =====================================================
 # TAB 5 — COMPARADOR DE FIIs
 # =====================================================
-with tab5:
+with tab6:
     st.subheader("⚖️ Comparador de FIIs")
     st.caption("Compare dois FIIs e veja quem vence em cada métrica.")
 
@@ -454,11 +554,10 @@ with tab5:
         pontos_b = 0
 
         comparacao = [
-            ("Preço da cota (menor melhor)", a["Preço Atual (R$)"], b["Preço Atual (R$)"], False),
-            ("P/VP (menor melhor)", a["P/VP"], b["P/VP"], False),
-            ("DY 12M (maior melhor)", a["DY (12M) Acumulado"], b["DY (12M) Acumulado"], True),
-            ("Liquidez (maior melhor)", a["Liquidez Diária (milhões R$)"], b["Liquidez Diária (milhões R$)"], True),
-            ("Patrimônio (maior melhor)", a["Patrimônio Líquido (milhões R$)"], b["Patrimônio Líquido (milhões R$)"], True),
+            ("Preço", a["Preço Atual (R$)"], b["Preço Atual (R$)"], False, 1),
+            ("P/VP", a["P/VP"], b["P/VP"], False, 2),
+            ("DY 12M", a["DY (12M) Acumulado"], b["DY (12M) Acumulado"], True, 3),
+            ("Liquidez", a["Liquidez Diária (milhões R$)"], b["Liquidez Diária (milhões R$)"], True, 2),
         ]
 
         st.divider()
@@ -504,7 +603,7 @@ with tab5:
 # =====================================================
 # TAB 3 — NOTÍCIAS
 # =====================================================
-with tab6:
+with tab7:
     st.subheader("📰 Notícias recentes por FII")
 
     ticker_noticia = st.selectbox(
@@ -541,7 +640,7 @@ with tab6:
 # =====================================================
 # TAB 3 — SIMULADOR DE REINVESTIMENTO
 # =====================================================
-with tab7:
+with tab8:
     df_reinvestimento = df.copy()
     st.subheader("🔁 Simulador de Reinvestimento de Dividendos")
 
@@ -560,9 +659,13 @@ with tab7:
     preco = row["Preço Atual (R$)"]
     dy12 = row["DY (12M) Acumulado"]
 
-    dividendo_mensal_por_cota = preco * (dy12 / 100) / 12
-    import math
-    cotas_necessarias = math.ceil(preco / dividendo_mensal_por_cota)
+    if dy12 <= 0:
+        st.warning("DY inválido para simulação.")
+        st.stop()
+    else:
+        dividendo_mensal_por_cota = preco * (dy12 / 100) / 12
+        import math
+        cotas_necessarias = math.ceil(preco / dividendo_mensal_por_cota)
 
     colunas_tab3 = st.columns(3)
     colunas_tab3[0].metric("Preço da cota", f"R$ {preco:.2f}")
@@ -617,7 +720,7 @@ with tab7:
 # =====================================================
 # TAB 4 — MINHA CARTEIRA
 # =====================================================
-with tab8:
+with tab9:
     st.subheader("💼 Simulação rápida da sua carteira de FIIs")
     st.caption(
         "Informe os FIIs e a quantidade de cotas para calcular "
@@ -669,6 +772,10 @@ with tab8:
 
             dy_mensal_carteira = (total_div_mensal / total_investido) * 100
             dy_anual_carteira = dy_mensal_carteira * 12
+            st.caption(
+                    "📌 DY da carteira é uma média ponderada histórica, "
+                    "não representa retorno garantido."
+                )
 
             st.divider()
 
@@ -696,77 +803,3 @@ with tab8:
                 "Dividendos podem variar."
             )
 
-# =====================================================
-# TAB 9 — EXPLICAÇÃO DAS MÉTRICAS
-# =====================================================
-with tab9:
-    st.subheader("📘 Entenda as principais métricas dos FIIs")
-    st.caption("Uma explicação simples e direta para quem está começando.")
-
-    with st.expander("📉 P/VP — Preço sobre Valor Patrimonial", expanded=False):
-        st.markdown(
-            """
-            O **P/VP** compara o preço da cota com o valor patrimonial do fundo.
-
-            - **P/VP < 1** → mercado pagando menos do que o fundo vale
-            - **P/VP > 1** → mercado aceita pagar prêmio
-
-            Pode indicar oportunidade ou problema.
-            **Nunca analise isoladamente.**
-            """
-        )
-
-    with st.expander("💰 Dividend Yield (DY)"):
-        st.markdown(
-            """
-            O **DY** mostra quanto o fundo paga de dividendos em relação ao preço da cota.
-
-            DY alto é atrativo, mas:
-            - Pode ser temporário
-            - Pode vir de eventos pontuais
-
-            Por isso analisamos **3, 6 e 12 meses**.
-            """
-        )
-
-    with st.expander("📊 Liquidez Diária"):
-        st.markdown(
-            """
-            Liquidez mostra o quanto o fundo é negociado por dia.
-
-            - Alta liquidez = facilidade para entrar e sair
-            - Baixa liquidez = risco de ficar preso
-
-            Para iniciantes, liquidez é proteção.
-            """
-        )
-
-    with st.expander("🏢 Patrimônio Líquido"):
-        st.markdown(
-            """
-            Indica o tamanho do fundo.
-
-            Fundos maiores tendem a:
-            - Ter gestão mais robusta
-            - Menor risco operacional
-            - Mais estabilidade
-
-            Não garante retorno, mas reduz riscos extremos.
-            """
-        )
-
-    with st.expander("👥 Número de Cotistas"):
-        st.markdown(
-            """
-            Mostra quantas pessoas investem naquele fundo.
-
-            Muitos cotistas:
-            - Aumentam liquidez
-            - Reduzem risco de decisões concentradas
-            """
-        )
-
-    st.info(
-        "📌 Este aplicativo cruza métricas para reduzir erros comuns. "
-        "Nenhuma métrica sozinha define um bom investimento."
-    )
