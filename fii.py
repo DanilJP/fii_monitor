@@ -202,7 +202,7 @@ df_top10 = (
 # =====================================================
 # TABS
 # =====================================================
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(
     [
         "📊 Top 10 Descontados",
         "🏦 Grandes FIIs",
@@ -210,10 +210,12 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(
         "🧠 Screener Personalizado",
         "⚖️ Comparador de FIIs",
         "📰 Notícias",
-        "🔁 Simluador de Reivestimento",
-        "💼 Simulador de Carteira"
+        "🔁 Simulador de Reinvestimento",
+        "💼 Simulador de Carteira",
+        "📘 Entenda as Métricas"
     ]
 )
+
 
 
 
@@ -694,4 +696,77 @@ with tab8:
                 "Dividendos podem variar."
             )
 
+# =====================================================
+# TAB 9 — EXPLICAÇÃO DAS MÉTRICAS
+# =====================================================
+with tab9:
+    st.subheader("📘 Entenda as principais métricas dos FIIs")
+    st.caption("Uma explicação simples e direta para quem está começando.")
 
+    with st.expander("📉 P/VP — Preço sobre Valor Patrimonial", expanded=True):
+        st.markdown(
+            """
+            O **P/VP** compara o preço da cota com o valor patrimonial do fundo.
+
+            - **P/VP < 1** → mercado pagando menos do que o fundo vale
+            - **P/VP > 1** → mercado aceita pagar prêmio
+
+            Pode indicar oportunidade ou problema.
+            **Nunca analise isoladamente.**
+            """
+        )
+
+    with st.expander("💰 Dividend Yield (DY)"):
+        st.markdown(
+            """
+            O **DY** mostra quanto o fundo paga de dividendos em relação ao preço da cota.
+
+            DY alto é atrativo, mas:
+            - Pode ser temporário
+            - Pode vir de eventos pontuais
+
+            Por isso analisamos **3, 6 e 12 meses**.
+            """
+        )
+
+    with st.expander("📊 Liquidez Diária"):
+        st.markdown(
+            """
+            Liquidez mostra o quanto o fundo é negociado por dia.
+
+            - Alta liquidez = facilidade para entrar e sair
+            - Baixa liquidez = risco de ficar preso
+
+            Para iniciantes, liquidez é proteção.
+            """
+        )
+
+    with st.expander("🏢 Patrimônio Líquido"):
+        st.markdown(
+            """
+            Indica o tamanho do fundo.
+
+            Fundos maiores tendem a:
+            - Ter gestão mais robusta
+            - Menor risco operacional
+            - Mais estabilidade
+
+            Não garante retorno, mas reduz riscos extremos.
+            """
+        )
+
+    with st.expander("👥 Número de Cotistas"):
+        st.markdown(
+            """
+            Mostra quantas pessoas investem naquele fundo.
+
+            Muitos cotistas:
+            - Aumentam liquidez
+            - Reduzem risco de decisões concentradas
+            """
+        )
+
+    st.info(
+        "📌 Este aplicativo cruza métricas para reduzir erros comuns. "
+        "Nenhuma métrica sozinha define um bom investimento."
+    )
