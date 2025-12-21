@@ -361,7 +361,8 @@ with tab3:
     st.caption("Fundos com cotas mais acessíveis e bom histórico de dividendos.")
 
     df_entrada = (
-        df[df["Preço Atual (R$)"] <= 30]
+        df[(df["Preço Atual (R$)"] <= 30) &
+           (df["DY (12M) Acumulado"] <= 24)]
         .sort_values("DY (12M) Acumulado", ascending=False)
         .head(5)
     )
@@ -380,7 +381,7 @@ with tab3:
             st.markdown(
                 f"""
                 <a href="https://www.fundsexplorer.com.br/funds/{ticker}" target="_blank">
-                    🔗 Ver no Funds Explorer
+                    🔗 Explorar FII
                 </a>
                 """,
                 unsafe_allow_html=True
