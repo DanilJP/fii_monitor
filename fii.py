@@ -554,15 +554,16 @@ with tab6:
         pontos_b = 0
 
         comparacao = [
-            ("Preço", a["Preço Atual (R$)"], b["Preço Atual (R$)"], False, 1),
-            ("P/VP", a["P/VP"], b["P/VP"], False, 2),
-            ("DY 12M", a["DY (12M) Acumulado"], b["DY (12M) Acumulado"], True, 3),
-            ("Liquidez", a["Liquidez Diária (milhões R$)"], b["Liquidez Diária (milhões R$)"], True, 2),
+            ("Preço (menor melhor)", a["Preço Atual (R$)"], b["Preço Atual (R$)"], False, 1),
+            ("P/VP (menor melhor)", a["P/VP"], b["P/VP"], False, 2),
+            ("DY 12M (maior melhor)", a["DY (12M) Acumulado"], b["DY (12M) Acumulado"], True, 3),
+            ("Liquidez (maior melhor)", a["Liquidez Diária (milhões R$)"], b["Liquidez Diária (milhões R$)"], True, 1),
         ]
 
         st.divider()
 
-        for nome, va, vb, maior_melhor in comparacao:
+        for nome, va, vb, maior_melhor, peso in comparacao:
+
             if va == vb:
                 vencedor = "Empate"
             elif maior_melhor:
@@ -571,13 +572,13 @@ with tab6:
                 vencedor = fii_a if va < vb else fii_b
 
             if vencedor == fii_a:
-                pontos_a += 1
+                pontos_a += peso
             elif vencedor == fii_b:
-                pontos_b += 1
+                pontos_b += peso
 
             st.markdown(
                 f"""
-                **{nome}**  
+                **{nome}** (peso {peso})  
                 - {fii_a}: `{va:.2f}`  
                 - {fii_b}: `{vb:.2f}`  
                 🏆 **Vencedor:** {vencedor}
