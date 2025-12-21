@@ -336,7 +336,7 @@ with tab2:
             st.markdown(
                 f"""
                 <a href="https://www.fundsexplorer.com.br/funds/{ticker}" target="_blank">
-                    🔗 Ver no Funds Explorer
+                    🔗 Explorar FII
                 </a>
                 """,
                 unsafe_allow_html=True
