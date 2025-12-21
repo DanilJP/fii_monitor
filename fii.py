@@ -187,7 +187,7 @@ def buscar_noticias(ticker, max_noticias=10):
             break
     st.caption(f"{len(noticias)} notícias encontradas nos últimos 30 dias")
     if len(noticias) >= 5:
-        st.warning("Volume elevado de notícias — vale investigar o motivo.")
+        st.warning("Volume elevado de notícias")
 
     return noticias
 
@@ -617,9 +617,6 @@ with tab7:
         noticias = buscar_noticias(ticker_noticia)
     else:
         noticias = 'primeiro'
-
-    st.caption("Notícias publicadas nos últimos 30 dias")
-
 
     if noticias == 'primeiro':
         st.info('Selecione o FII deseja buscar notícias e clique no botão acima.')
