@@ -335,6 +335,22 @@ with tab0:
         Cada ranking possui **regras próprias**, pensadas para diferentes perfis e objetivos.
         """
     )
+    with st.container(border=True):
+        st.markdown("### 🧪 Estamos em fase de testes")
+
+        st.markdown(
+            """
+            Este projeto está em **fase de validação**.
+            
+            Se você usa FIIs no dia a dia, seu feedback é essencial
+            para evoluirmos a ferramenta com foco no que realmente importa.
+            """
+        )
+
+    st.markdown(
+        "👉 [Enviar feedback / responder formulário](https://SEU_LINK_DO_FORMS_AQUI)",
+        unsafe_allow_html=True
+    )
 
     st.divider()
 

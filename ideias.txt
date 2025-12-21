@@ -1,0 +1,7 @@
+criação de alertas quando os fiis que escolheu monitar tem alguma noticia nova, quadas de preço
+criar um código para as atualizações e envio por whatsapp alertas
+estruturar um lugar para salvar os tops e suas mudanças e também fazer as atualizações
+criar uma forma de salvar os logs dos usuários
+página de login
+forms de feedbacks
+além do simulador de carteira, fazer uma tab ou planilha para a pessoa acompanhar a sua carteira (isso pode ser mais premium)
