@@ -342,6 +342,15 @@ with tab2:
                 unsafe_allow_html=True
             )
             st.write('')
+            with st.expander("🔎 Detalhes do fundo"):
+                st.markdown(
+                    f"""
+                    - **Cotistas:** {row['Num. Cotistas (milhares)']:.0f} mil  
+                    - **Último Dividendo: R$ {row['Último Dividendo']:.2f}**  
+                    - **DY (3M) Acumulado:** {row['DY (3M) Acumulado']:.1f}%  
+                    - **DY (6M) Acumulado:** {row['DY (6M) Acumulado']:.1f}%  
+                    """
+                )
 
 
 # =====================================================
