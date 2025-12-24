@@ -23,7 +23,7 @@ def botao_voltar():
 st.markdown("""
 <style>
 button {
-    height: 120px;
+    height: 80px;
     border-radius: 16px;
     font-size: 16px;
     white-space: pre-line;
