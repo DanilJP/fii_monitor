@@ -84,41 +84,7 @@ def fii_cards(df_top10):
                     - **DY (6M) Acumulado:** {row['DY (6M) Acumulado']:.1f}%  
                     """
                 )
-if st.session_state.page == "home":
 
-    st.title("📍 Refera")
-    st.caption("Onde decisões de investimento encontram fundamentos.")
-
-    st.divider()
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        card("📊 Rankings", "Top FIIs por critérios objetivos", "rankings")
-
-    with col2:
-        card("⚖️ Comparador", "FII vs FII, sem achismo", "comparador")
-
-    with col1:
-        card("🧠 Screener", "Crie seus próprios filtros", "screener")
-
-    with col2:
-        card("🔁 Simuladores", "Renda, reinvestimento e carteira", "simuladores")
-
-    st.divider()
-
-    st.markdown(
-        "👉 [Enviar feedback](https://docs.google.com/forms/d/e/1FAIpQLSeJcPsOTjJw-jTUoBwCxtoCAIPVLIH2kJVkm-xYG9GlOBUSuA/viewform)",
-        unsafe_allow_html=True
-    )
-elif st.session_state.page == "rankings":
-
-    botao_voltar()
-    st.subheader("📊 Rankings de FIIs")
-
-    st.caption("Fundos selecionados por critérios quantitativos claros.")
-
-    fii_cards(df_top10)
 SELIC_ANUAL = 15.0*(1-0.225)  # referência aproximada
 
 def comparar_com_selic(dy):
@@ -319,7 +285,41 @@ df_top10 = (
 def calcular_rendimento_mensal(dy12):
     return ((1 + dy12 / 100) ** (1 / 12) - 1) * 100
 
+if st.session_state.page == "home":
 
+    st.title("📍 Refera")
+    st.caption("Onde decisões de investimento encontram fundamentos.")
+
+    st.divider()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        card("📊 Rankings", "Top FIIs por critérios objetivos", "rankings")
+
+    with col2:
+        card("⚖️ Comparador", "FII vs FII, sem achismo", "comparador")
+
+    with col1:
+        card("🧠 Screener", "Crie seus próprios filtros", "screener")
+
+    with col2:
+        card("🔁 Simuladores", "Renda, reinvestimento e carteira", "simuladores")
+
+    st.divider()
+
+    st.markdown(
+        "👉 [Enviar feedback](https://docs.google.com/forms/d/e/1FAIpQLSeJcPsOTjJw-jTUoBwCxtoCAIPVLIH2kJVkm-xYG9GlOBUSuA/viewform)",
+        unsafe_allow_html=True
+    )
+elif st.session_state.page == "rankings":
+
+    botao_voltar()
+    st.subheader("📊 Rankings de FIIs")
+
+    st.caption("Fundos selecionados por critérios quantitativos claros.")
+
+    fii_cards(df_top10)
 
 # =====================================================
 # TABS
