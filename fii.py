@@ -35,7 +35,55 @@ def card(titulo, descricao, page_key):
     if st.button(f"{titulo}\n\n{descricao}", key=page_key, use_container_width=True):
         st.session_state.page = page_key
         st.rerun()
+def fii_cards(df_top10):
+    for _, row in df_top10.iterrows():
+        with st.container(border=True):
 
+            st.markdown(f"### {row['Fundos']}")
+            st.caption(f"Setor: {row['Setor']}")
+
+
+            c1, c2, c3 = st.columns(3)
+
+            c1.metric("P/VP", f"{row['P/VP']:.2f}")
+            c2.metric("Liquidez Diária", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
+            c3.metric("Preço Atual", f"R$ {row['Preço Atual (R$)']:.2f}")
+
+            dy12 = row['DY (12M) Acumulado']
+            status_selic = comparar_com_selic(dy12)
+            st.caption(
+                f"Referência Selic: {status_selic} "
+                f"(DY 12M: {dy12:.1f}% | Selic (com IR) ref.: {SELIC_ANUAL:.1f}%)"
+            )
+            rendimento_mes = calcular_rendimento_mensal(dy12)
+
+            st.metric("Dividend Yield (12M)", f"{dy12:.1f}%")
+            st.markdown(
+                f"> Rendimento equivalente: <u>{rendimento_mes:.2f}%</u> ao mês",
+                unsafe_allow_html=True
+            )
+
+            ticker = row['Fundos'].split(" - ")[0]
+            st.markdown(
+                f"""
+                <a href="https://www.fundsexplorer.com.br/fiagros/{ticker}" target="_blank">
+                    🔗 Explorar FII
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
+            st.write('')
+
+            with st.expander("🔎 Detalhes do fundo"):
+                st.markdown(
+                    f"""
+                    - **Patrimônio Líquido:** R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi  
+                    - **Cotistas:** {row['Num. Cotistas (milhares)']:.0f} mil  
+                    - **Último Dividendo: R$ {row['Último Dividendo']:.2f}**  
+                    - **DY (3M) Acumulado:** {row['DY (3M) Acumulado']:.1f}%  
+                    - **DY (6M) Acumulado:** {row['DY (6M) Acumulado']:.1f}%  
+                    """
+                )
 if st.session_state.page == "home":
 
     st.title("📍 Refera")
@@ -271,55 +319,7 @@ df_top10 = (
 def calcular_rendimento_mensal(dy12):
     return ((1 + dy12 / 100) ** (1 / 12) - 1) * 100
 
-def fii_cards(df_top10):
-    for _, row in df_top10.iterrows():
-        with st.container(border=True):
 
-            st.markdown(f"### {row['Fundos']}")
-            st.caption(f"Setor: {row['Setor']}")
-
-
-            c1, c2, c3 = st.columns(3)
-
-            c1.metric("P/VP", f"{row['P/VP']:.2f}")
-            c2.metric("Liquidez Diária", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
-            c3.metric("Preço Atual", f"R$ {row['Preço Atual (R$)']:.2f}")
-
-            dy12 = row['DY (12M) Acumulado']
-            status_selic = comparar_com_selic(dy12)
-            st.caption(
-                f"Referência Selic: {status_selic} "
-                f"(DY 12M: {dy12:.1f}% | Selic (com IR) ref.: {SELIC_ANUAL:.1f}%)"
-            )
-            rendimento_mes = calcular_rendimento_mensal(dy12)
-
-            st.metric("Dividend Yield (12M)", f"{dy12:.1f}%")
-            st.markdown(
-                f"> Rendimento equivalente: <u>{rendimento_mes:.2f}%</u> ao mês",
-                unsafe_allow_html=True
-            )
-
-            ticker = row['Fundos'].split(" - ")[0]
-            st.markdown(
-                f"""
-                <a href="https://www.fundsexplorer.com.br/fiagros/{ticker}" target="_blank">
-                    🔗 Explorar FII
-                </a>
-                """,
-                unsafe_allow_html=True
-            )
-            st.write('')
-
-            with st.expander("🔎 Detalhes do fundo"):
-                st.markdown(
-                    f"""
-                    - **Patrimônio Líquido:** R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi  
-                    - **Cotistas:** {row['Num. Cotistas (milhares)']:.0f} mil  
-                    - **Último Dividendo: R$ {row['Último Dividendo']:.2f}**  
-                    - **DY (3M) Acumulado:** {row['DY (3M) Acumulado']:.1f}%  
-                    - **DY (6M) Acumulado:** {row['DY (6M) Acumulado']:.1f}%  
-                    """
-                )
 
 # =====================================================
 # TABS
