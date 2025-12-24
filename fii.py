@@ -16,6 +16,10 @@ st.set_page_config(
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
+def botao_voltar():
+    if st.button("← Voltar"):
+        st.session_state.page = "home"
+        st.rerun()
 st.markdown("""
 <style>
 button {
