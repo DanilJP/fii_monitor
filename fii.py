@@ -191,7 +191,19 @@ def filtrar_fiis_descontados_com_qualidade(df):
         (df["Patrimônio Líquido (milhões R$)"] >= 500) &
         (df["Num. Cotistas (milhares)"] >= 10)
     ].copy()
-r
+
+# =====================================================
+# TOP 10 — RANKING GLOBAL
+# =====================================================
+fiis_achados = len(df_filtrados)
+
+df_top10 = (
+    df_filtrados
+    .sort_values("DY (12M) Acumulado", ascending=False)
+    .head(15)              # pega margem maior
+    .sort_values("P/VP")   # prioriza desconto
+    .head(10)
+)
 
 # =====================================================
 # NOTÍCIAS — GOOGLE NEWS (RSS)
