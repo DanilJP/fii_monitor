@@ -194,20 +194,7 @@ def filtrar_fiis_descontados_com_qualidade(df):
 
 
 
-df = carregar_dados()
-df_filtrados = filtrar_fiis_descontados_com_qualidade(df)
-# =====================================================
-# TOP 10 — RANKING GLOBAL
-# =====================================================
-fiis_achados = len(df_filtrados)
 
-df_top10 = (
-    df_filtrados
-    .sort_values("DY (12M) Acumulado", ascending=False)
-    .head(15)              # pega margem maior
-    .sort_values("P/VP")   # prioriza desconto
-    .head(10)
-)
 # =====================================================
 # NOTÍCIAS — GOOGLE NEWS (RSS)
 # =====================================================
@@ -315,7 +302,20 @@ def backtest_valorizacao(hist):
 
     return retorno_total, retorno_anual
 
+df = carregar_dados()
+df_filtrados = filtrar_fiis_descontados_com_qualidade(df)
+# =====================================================
+# TOP 10 — RANKING GLOBAL
+# =====================================================
+fiis_achados = len(df_filtrados)
 
+df_top10 = (
+    df_filtrados
+    .sort_values("DY (12M) Acumulado", ascending=False)
+    .head(15)              # pega margem maior
+    .sort_values("P/VP")   # prioriza desconto
+    .head(10)
+)
 # =====================================================
 # TABS
 # =====================================================
