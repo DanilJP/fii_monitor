@@ -192,6 +192,10 @@ def filtrar_fiis_descontados_com_qualidade(df):
         (df["Num. Cotistas (milhares)"] >= 10)
     ].copy()
 
+
+
+df = carregar_dados()
+df_filtrados = filtrar_fiis_descontados_com_qualidade(df)
 # =====================================================
 # TOP 10 — RANKING GLOBAL
 # =====================================================
@@ -204,7 +208,6 @@ df_top10 = (
     .sort_values("P/VP")   # prioriza desconto
     .head(10)
 )
-
 # =====================================================
 # NOTÍCIAS — GOOGLE NEWS (RSS)
 # =====================================================
