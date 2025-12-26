@@ -120,17 +120,14 @@ def comparar_com_selic(dy):
     else:
         return "Em linha com a Selic"
 
-@st.cache_data(ttl=60*60)
+@st.cache_data(ttl=60*60*6)
 def carregar_dados_acao(ticker):
     acao = yf.Ticker(ticker)
 
-    info = acao.info
-    financials = acao.financials
-    balance = acao.balance_sheet
-    cashflow = acao.cashflow
+    info = acao.fast_info
     hist = acao.history(period="5y")
 
-    return info, financials, balance, cashflow, hist
+    return info, hist
 
 
 def extrair_metricas(info):
@@ -1082,7 +1079,7 @@ with tab11:
         key="acao_fundamental"
     )
 
-    info, financials, balance, cashflow, hist = carregar_dados_acao(ticker)
+    info, hist = carregar_dados_acao(ticker)
     metricas = extrair_metricas(info)
 
     # =====================
