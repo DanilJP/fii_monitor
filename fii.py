@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 import feedparser
 from datetime import datetime, timedelta
 from urllib.parse import quote
+import yfinance as yf
+
 
 # =====================================================
 # CONFIG STREAMLIT
@@ -118,7 +120,40 @@ def comparar_com_selic(dy):
     else:
         return "Em linha com a Selic"
 
+@st.cache_data(ttl=60*60)
+def carregar_dados_acao(ticker):
+    acao = yf.Ticker(ticker)
 
+    info = acao.info
+    financials = acao.financials
+    balance = acao.balance_sheet
+    cashflow = acao.cashflow
+    hist = acao.history(period="5y")
+
+    return info, financials, balance, cashflow, hist
+
+
+def extrair_metricas(info):
+    return {
+        "Preço Atual": info.get("currentPrice"),
+        "P/L": info.get("trailingPE"),
+        "P/VP": info.get("priceToBook"),
+        "ROE (%)": info.get("returnOnEquity", 0) * 100 if info.get("returnOnEquity") else None,
+        "ROA (%)": info.get("returnOnAssets", 0) * 100 if info.get("returnOnAssets") else None,
+        "Margem Líquida (%)": info.get("profitMargins", 0) * 100 if info.get("profitMargins") else None,
+        "Dívida/Patrimônio": info.get("debtToEquity"),
+        "Crescimento Receita (%)": info.get("revenueGrowth", 0) * 100 if info.get("revenueGrowth") else None,
+        "Market Cap (R$ bi)": info.get("marketCap") / 1e9 if info.get("marketCap") else None
+    }
+
+def backtest_valorizacao(hist):
+    preco_inicial = hist["Close"].iloc[0]
+    preco_final = hist["Close"].iloc[-1]
+
+    retorno_total = ((preco_final / preco_inicial) - 1) * 100
+    retorno_anual = (1 + retorno_total/100) ** (1/5) - 1
+
+    return retorno_total, retorno_anual * 100
 # =====================================================
 # AVISO LEGAL — POPUP APENAS NA PRIMEIRA VISITA
 # =====================================================
@@ -1034,3 +1069,68 @@ with tab10:
         f"[🔗 Ver dados completos no Funds Explorer](https://www.fundsexplorer.com.br/funds/{ticker})",
         unsafe_allow_html=True
         )
+
+
+with tab10:
+    st.subheader("📈 Análise Fundamentalista de Ações")
+    st.caption("Avaliação focada em fundamentos e crescimento no tempo")
+
+    ticker = st.selectbox(
+        "Selecione a ação (ex: ITUB4.SA)",
+        ["ITUB4.SA", "VALE3.SA", "PETR4.SA", "WEGE3.SA"],
+        key="acao_fundamental"
+    )
+
+    info, financials, balance, cashflow, hist = carregar_dados_acao(ticker)
+    metricas = extrair_metricas(info)
+
+    # =====================
+    # VISÃO RÁPIDA
+    # =====================
+    st.markdown("### 📌 Visão Rápida")
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Preço", f"R$ {metricas['Preço Atual']:.2f}")
+    c2.metric("P/L", f"{metricas['P/L']:.1f}" if metricas["P/L"] else "—")
+    c3.metric("P/VP", f"{metricas['P/VP']:.2f}" if metricas["P/VP"] else "—")
+    c4.metric("ROE", f"{metricas['ROE (%)']:.1f}%" if metricas["ROE (%)"] else "—")
+
+    st.divider()
+
+    # =====================
+    # FUNDAMENTOS
+    # =====================
+    st.markdown("### 🧱 Fundamentação")
+
+    st.markdown(f"""
+    - **Margem Líquida:** {metricas['Margem Líquida (%)']:.1f}%  
+    - **ROA:** {metricas['ROA (%)']:.1f}%  
+    - **Dívida / Patrimônio:** {metricas['Dívida/Patrimônio']:.2f}  
+    - **Crescimento de Receita:** {metricas['Crescimento Receita (%)']:.1f}%  
+    - **Market Cap:** R$ {metricas['Market Cap (R$ bi)']:.1f} bi
+    """)
+
+    st.divider()
+
+    # =====================
+    # BACKTEST
+    # =====================
+    st.markdown("### ⏱️ Backtest de Valorização (5 anos)")
+
+    retorno_total, retorno_anual = backtest_valorizacao(hist)
+
+    c1, c2 = st.columns(2)
+    c1.metric("Retorno Total", f"{retorno_total:.1f}%")
+    c2.metric("Retorno Anualizado", f"{retorno_anual:.1f}%")
+
+    st.line_chart(hist["Close"])
+
+    st.divider()
+
+    # =====================
+    # AVISO
+    # =====================
+    st.info(
+        "Esta análise é quantitativa e baseada em dados públicos. "
+        "Não constitui recomendação de investimento."
+    )
