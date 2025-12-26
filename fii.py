@@ -301,7 +301,7 @@ df_top10 = (
     df_filtrados
     .sort_values("DY (12M) Acumulado", ascending=False)
     .head(15)
-    .sort_values("P/VP")
+    #.sort_values("P/VP")
     .head(10)
 )
 
