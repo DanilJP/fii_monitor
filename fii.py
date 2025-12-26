@@ -1078,7 +1078,7 @@ with tab11:
     st.caption("Avaliação focada em fundamentos e crescimento no tempo")
 
     ticker = st.selectbox(
-        "Selecione a ação (ex: ITUB4.SA)",
+        "Selecione a ação",
         ["ITUB4.SA", "VALE3.SA", "PETR4.SA", "WEGE3.SA"],
         key="acao_fundamental"
     )
@@ -1089,13 +1089,13 @@ with tab11:
     # =====================
     # VISÃO RÁPIDA
     # =====================
-    st.markdown("### 📌 Visão Rápida")
+    st.markdown("### 📌 Visão rápida")
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Preço", f"R$ {metricas['Preço Atual']:.2f}")
     c2.metric("P/L", f"{metricas['P/L']:.1f}" if metricas["P/L"] else "—")
     c3.metric("P/VP", f"{metricas['P/VP']:.2f}" if metricas["P/VP"] else "—")
-    c4.metric("ROE", f"{metricas['ROE (%)']:.1f}%" if metricas["ROE (%)"] else "—")
+    c4.metric("ROE", f"{metricas['ROE (%)']:.1f}%")
 
     st.divider()
 
@@ -1103,13 +1103,13 @@ with tab11:
     # FUNDAMENTOS
     # =====================
     st.markdown("### 🧱 Fundamentação")
-    st.write(metricas)
+
     st.markdown(f"""
     - **Margem Líquida:** {metricas['Margem Líquida (%)']:.1f}%  
     - **ROA:** {metricas['ROA (%)']:.1f}%  
     - **Dívida / Patrimônio:** {metricas['Dívida/Patrimônio']:.2f}  
     - **Crescimento de Receita:** {metricas['Crescimento Receita (%)']:.1f}%  
-    - **Market Cap:** R$ {metricas['Market Cap (R$ bi)']:.1f} bi
+    - **Market Cap:** R$ {metricas['Market Cap (R$ bi)']:.1f} bi  
     """)
 
     st.divider()
@@ -1125,14 +1125,12 @@ with tab11:
     c1.metric("Retorno Total", f"{retorno_total:.1f}%")
     c2.metric("Retorno Anualizado", f"{retorno_anual:.1f}%")
 
-    st.line_chart(hist["Close"])
+    hist_plot = hist.set_index("Date")
+    st.line_chart(hist_plot["Close"])
 
     st.divider()
 
-    # =====================
-    # AVISO
-    # =====================
     st.info(
-        "Esta análise é quantitativa e baseada em dados públicos. "
+        "Análise quantitativa baseada em dados públicos. "
         "Não constitui recomendação de investimento."
     )
