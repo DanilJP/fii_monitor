@@ -382,7 +382,7 @@ elif st.session_state.page == "rankings":
 # =====================================================
 # TABS
 # =====================================================
-tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8,tab9, tab10 = st.tabs(
+tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8,tab9, tab10,tab11 = st.tabs(
     [
         "🏠 Home",
         "📘 Entenda as Métricas",
