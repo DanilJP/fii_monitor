@@ -55,13 +55,21 @@ button {
 
 def voltar_home():
     st.markdown(
-        "<div style='margin-bottom:8px;'>← <span style='color:#666; font-size:14px;'>Voltar</span></div>",
+        """
+        <a href="?page=home"
+           style="
+           font-size:14px;
+           color:#666;
+           text-decoration:none;
+           ">
+           ← Voltar
+        </a>
+        """,
         unsafe_allow_html=True
     )
 
-    if st.button("", key="voltar_home_click", help="Voltar para o início"):
+    if st.query_params.get("page") == ["home"]:
         st.session_state.page = "home"
-        st.rerun()
 # =====================================================
 # HELPERS DE NAVEGAÇÃO
 # =====================================================
