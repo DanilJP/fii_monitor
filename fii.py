@@ -394,23 +394,7 @@ df_top10 = (
 # =====================================================
 # TABS
 # =====================================================
-tab_home, tab_metricas, tab_top10, tab_grandes, tab_entrada, tab_screener, \
-tab_comparador, tab_noticias, tab_reinvest, tab_carteira, tab_fii, tab_acoes = st.tabs(
-    [
-        "🏠 Home",
-        "📘 Métricas",
-        "📊 Top 10",
-        "🏦 Grandes",
-        "💸 Entrada",
-        "🧠 Screener",
-        "⚖️ Comparador",
-        "📰 Notícias",
-        "🔁 Reinvestimento",
-        "💼 Carteira",
-        "🔎 FII Individual",
-        "📈 Ações"
-    ]
-)
+
 
 if st.session_state.page == "home":
     st.title("📍 FIIs Monitor")
