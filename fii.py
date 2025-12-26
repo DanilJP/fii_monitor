@@ -120,7 +120,6 @@ def comparar_com_selic(dy):
     else:
         return "Em linha com a Selic"
 
-@st.cache_data(ttl=60*60*6)
 def carregar_dados_acao(ticker):
     acao = yf.Ticker(ticker)
 
