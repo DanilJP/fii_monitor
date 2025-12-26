@@ -904,8 +904,9 @@ with tab10:
     st.caption("Visão consolidada para tomada de decisão fundamentada")
 
     fii_escolhido = st.selectbox(
-        "Selecione o FII",
-        sorted(df["Fundos"].unique())
+       "Selecione o FII",
+       sorted(df["Fundos"].unique()),
+       key="analise_individual_fii"
     )
 
     row = df[df["Fundos"] == fii_escolhido].iloc[0]
