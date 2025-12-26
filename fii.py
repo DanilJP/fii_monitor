@@ -53,7 +53,19 @@ button {
 </style>
 """, unsafe_allow_html=True)
 
+def voltar_home():
+    col1, col2 = st.columns([1, 20])
 
+    with col1:
+        if st.button("←", key="voltar_home"):
+            st.session_state.page = "home"
+            st.rerun()
+
+    with col2:
+        st.markdown(
+            "<span style='font-size:14px; color:#666;'>Voltar</span>",
+            unsafe_allow_html=True
+        )
 # =====================================================
 # HELPERS DE NAVEGAÇÃO
 # =====================================================
@@ -395,7 +407,7 @@ df_top10 = (
 # TABS
 # =====================================================
 
-
+voltar_home()
 if st.session_state.page == "home":
     st.title("📍 FIIs Monitor")
     st.caption("Onde decisões de investimento encontram fundamentos.")
