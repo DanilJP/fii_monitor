@@ -1099,7 +1099,7 @@ with tab11:
     # FUNDAMENTOS
     # =====================
     st.markdown("### 🧱 Fundamentação")
-
+    st.write(metricas)
     st.markdown(f"""
     - **Margem Líquida:** {metricas['Margem Líquida (%)']:.1f}%  
     - **ROA:** {metricas['ROA (%)']:.1f}%  
