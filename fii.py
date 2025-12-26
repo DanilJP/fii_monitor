@@ -1085,6 +1085,7 @@ with tab11:
 
     info, hist = carregar_dados_acao(ticker)
     metricas = extrair_metricas(info)
+    st.write(metricas)
 
     # =====================
     # VISÃO RÁPIDA
