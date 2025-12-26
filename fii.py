@@ -30,7 +30,30 @@ button {
 }
 </style>
 """, unsafe_allow_html=True)
+def analisar_fii(row):
+    pontos = []
 
+    if row["P/VP"] < 1:
+        pontos.append("Preço abaixo do valor patrimonial")
+    else:
+        pontos.append("Preço acima do valor patrimonial")
+
+    if row["DY (12M) Acumulado"] >= 9:
+        pontos.append("Dividendos consistentes no último ano")
+    else:
+        pontos.append("Dividendos abaixo do esperado")
+
+    if row["Liquidez Diária (milhões R$)"] >= 1:
+        pontos.append("Boa liquidez")
+    else:
+        pontos.append("Liquidez limitada")
+
+    if row["Patrimônio Líquido (milhões R$)"] >= 500:
+        pontos.append("Fundo de grande porte")
+    else:
+        pontos.append("Fundo de menor porte")
+
+    return pontos
 def card(titulo, descricao, page_key):
     if st.button(f"{titulo}\n\n{descricao}", key=page_key, use_container_width=True):
         st.session_state.page = page_key
@@ -324,7 +347,7 @@ elif st.session_state.page == "rankings":
 # =====================================================
 # TABS
 # =====================================================
-tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8,tab9 = st.tabs(
+tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8,tab9, tab10 = st.tabs(
     [
         "🏠 Home",
         "📘 Entenda as Métricas",
@@ -335,7 +358,8 @@ tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8,tab9 = st.tabs(
         "⚖️ Comparador de FIIs",
         "📰 Notícias",
         "🔁 Simulador de Reinvestimento",
-        "💼 Simulador de Carteira"
+        "💼 Simulador de Carteira",
+        "$ Análise Individual"
     ]
 )
 
@@ -874,4 +898,90 @@ with tab9:
                 "⚠️ Valores estimados com base no DY histórico (12M). "
                 "Dividendos podem variar."
             )
+
+with tab10:
+    st.subheader("🔎 Análise Individual de FII")
+    st.caption("Visão consolidada para tomada de decisão fundamentada")
+
+    fii_escolhido = st.selectbox(
+        "Selecione o FII",
+        sorted(df["Fundos"].unique())
+    )
+
+    row = df[df["Fundos"] == fii_escolhido].iloc[0]
+
+    # ===============================
+    # VISÃO RÁPIDA
+    # ===============================
+    st.markdown("### 📌 Visão rápida")
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Preço", f"R$ {row['Preço Atual (R$)']:.2f}")
+    c2.metric("P/VP", f"{row['P/VP']:.2f}")
+    c3.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
+    c4.metric("Liquidez", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
+
+    st.divider()
+
+    # ===============================
+    # FUNDAMENTOS
+    # ===============================
+    st.markdown("### 🧱 Fundamentação")
+
+    fundamentos = analisar_fii(row)
+
+    for f in fundamentos:
+        st.markdown(f"- {f}")
+
+    st.divider()
+
+    # ===============================
+    # HISTÓRICO DE DIVIDENDOS
+    # ===============================
+    st.markdown("### 💰 Histórico de Dividendos")
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("DY 3M", f"{row['DY (3M) Acumulado']:.1f}%")
+    c2.metric("DY 6M", f"{row['DY (6M) Acumulado']:.1f}%")
+    c3.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
+
+    st.caption(f"Último dividendo: R$ {row['Último Dividendo']:.2f}")
+
+    st.divider()
+
+    # ===============================
+    # CONTEXTO E PORTE
+    # ===============================
+    st.markdown("### 🏢 Porte e relevância")
+
+    c1, c2 = st.columns(2)
+    c1.metric(
+        "Patrimônio Líquido",
+        f"R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi"
+    )
+    c2.metric(
+        "Cotistas",
+        f"{row['Num. Cotistas (milhares)']:.0f} mil"
+    )
+
+    st.divider()
+
+    # ===============================
+    # VEREDITO (NÃO RECOMENDAÇÃO)
+    # ===============================
+    st.markdown("### 🧭 Leitura atual")
+
+    st.info(
+        """
+        Esta análise é baseada em critérios quantitativos objetivos.
+        Não constitui recomendação de compra ou venda.
+        Use como **apoio à decisão**, não como decisão final.
+        """
+    )
+
+    ticker = row["Fundos"].split(" - ")[0]
+    st.markdown(
+        f"[🔗 Ver no Funds Explorer](https://www.fundsexplorer.com.br/funds/{ticker})",
+        unsafe_allow_html=True
+    )
 
