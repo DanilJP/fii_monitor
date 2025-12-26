@@ -301,7 +301,82 @@ def backtest_valorizacao(hist):
     retorno_anual = ((preco_final / preco_inicial) ** (1 / anos) - 1) * 100
 
     return retorno_total, retorno_anual
+# =====================================================
+# UI — CARDS DE FIIs
+# =====================================================
+def fii_cards(df_cards):
+    """
+    Renderiza cards padronizados de FIIs.
+    Espera um DataFrame com as colunas já tratadas.
+    """
 
+    for _, row in df_cards.iterrows():
+        with st.container(border=True):
+
+            st.markdown(f"### {row['Fundos']}")
+            st.caption(f"Setor: {row.get('Setor', '—')}")
+
+            # ===============================
+            # MÉTRICAS PRINCIPAIS
+            # ===============================
+            c1, c2, c3 = st.columns(3)
+            c1.metric("P/VP", f"{row['P/VP']:.2f}")
+            c2.metric(
+                "Liquidez Diária",
+                f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi"
+            )
+            c3.metric(
+                "Preço Atual",
+                f"R$ {row['Preço Atual (R$)']:.2f}"
+            )
+
+            # ===============================
+            # DY E COMPARAÇÃO COM SELIC
+            # ===============================
+            dy12 = row["DY (12M) Acumulado"]
+            status_selic = comparar_com_selic(dy12)
+            rendimento_mes = calcular_rendimento_mensal(dy12)
+
+            st.metric("Dividend Yield (12M)", f"{dy12:.1f}%")
+            st.caption(
+                f"Renda vs Selic: **{status_selic}** "
+                f"(DY 12M: {dy12:.1f}% | Selic líquida ref.: {SELIC_ANUAL:.1f}%)"
+            )
+
+            st.markdown(
+                f"> Rendimento equivalente: "
+                f"<u>{rendimento_mes:.2f}%</u> ao mês",
+                unsafe_allow_html=True
+            )
+
+            # ===============================
+            # LINK EXTERNO
+            # ===============================
+            ticker = row["Fundos"].split(" - ")[0]
+            st.markdown(
+                f"""
+                <a href="https://www.fundsexplorer.com.br/funds/{ticker}"
+                   target="_blank">
+                    🔗 Ver no Funds Explorer
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # ===============================
+            # DETALHES
+            # ===============================
+            with st.expander("🔎 Detalhes do fundo"):
+                st.markdown(
+                    f"""
+                    - **Patrimônio Líquido:** R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi  
+                    - **Cotistas:** {row['Num. Cotistas (milhares)']:.0f} mil  
+                    - **Último Dividendo:** R$ {row['Último Dividendo']:.2f}  
+                    - **DY 3M:** {row['DY (3M) Acumulado']:.1f}%  
+                    - **DY 6M:** {row['DY (6M) Acumulado']:.1f}%  
+                    """
+    )
+                
 df = carregar_dados()
 df_filtrados = filtrar_fiis_descontados_com_qualidade(df)
 # =====================================================
