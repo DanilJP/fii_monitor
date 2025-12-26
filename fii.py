@@ -191,7 +191,7 @@ def filtrar_fiis_descontados_com_qualidade(df):
         (df["Patrimônio Líquido (milhões R$)"] >= 500) &
         (df["Num. Cotistas (milhares)"] >= 10)
     ].copy()
-
+r
 
 # =====================================================
 # NOTÍCIAS — GOOGLE NEWS (RSS)
