@@ -10,7 +10,27 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 
+st.markdown("""
+<style>
+.grid-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
 
+@media (max-width: 600px) {
+    .grid-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.grid-buttons button {
+    height: 90px !important;
+    font-size: 14px !important;
+    border-radius: 14px !important;
+}
+</style>
+""", unsafe_allow_html=True)
 # =====================================================
 # CONFIG STREAMLIT
 # =====================================================
@@ -27,6 +47,11 @@ if "page" not in st.session_state:
 
 if "aviso_aceito" not in st.session_state:
     st.session_state.aviso_aceito = False
+
+def grid_button(label, page_key):
+    if st.button(label, key=page_key, use_container_width=True):
+        st.session_state.page = page_key
+        st.rerun()
 
 # =====================================================
 # CONSTANTES GLOBAIS
@@ -418,25 +443,22 @@ if st.session_state.page == "home":
 
     st.divider()
 
-    c1, c2 = st.columns(2)
+    st.markdown("<div class='grid-buttons'>", unsafe_allow_html=True)
 
-    with c1:
-        card("📊 Top 10", "FIIs descontados com qualidade", "top10")
-        card("🏦 Grandes FIIs", "Fundos mais relevantes", "grandes")
-        card("💸 FIIs de Entrada", "Cotas acessíveis", "entrada")
-        card("🧠 Screener", "Crie seus próprios filtros", "screener")
+    grid_button("📊 Top 10\nFIIs selecionados", "top10")
+    grid_button("🏦 Grandes FIIs\nFundos robustos", "grandes")
+    grid_button("💸 FIIs de Entrada\nCotas acessíveis", "entrada")
+    grid_button("🧠 Screener\nFiltros avançados", "screener")
 
-    with c2:
-        card("⚖️ Comparador", "Compare FIIs lado a lado", "comparador")
-        card("📰 Notícias", "Contexto e eventos recentes", "noticias")
-        card("🔁 Reinvestimento", "Simulador de renda", "reinvest")
-        card("💼 Carteira", "Simule sua carteira", "carteira")
+    grid_button("⚖️ Comparador\nFII vs FII", "comparador")
+    grid_button("📰 Notícias\nContexto recente", "noticias")
+    grid_button("🔁 Reinvestimento\nRenda automática", "reinvest")
+    grid_button("💼 Carteira\nSimule sua renda", "carteira")
 
-    st.divider()
-    card("🔎 Métricas", "Metricas", "metricas")
-    card("🔎 FII Individual", "Análise detalhada", "fii")
-    card("📈 Ações", "Análise fundamentalista", "acoes")
+    grid_button("🔎 FII Individual\nAnálise profunda", "fii")
+    grid_button("📈 Ações\nFundamentalista", "acoes")
 
+    st.markdown("</div>", unsafe_allow_html=True)
 # =====================================================
 # TAB — MÉTRICAS
 # =====================================================
