@@ -394,7 +394,8 @@ tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8,tab9, tab10 = st.tabs(
         "📰 Notícias",
         "🔁 Simulador de Reinvestimento",
         "💼 Simulador de Carteira",
-        "$ Análise Individual"
+        "$ Análise Individual",
+        "ações"
     ]
 )
 
@@ -1071,7 +1072,7 @@ with tab10:
         )
 
 
-with tab10:
+with tab11:
     st.subheader("📈 Análise Fundamentalista de Ações")
     st.caption("Avaliação focada em fundamentos e crescimento no tempo")
 
