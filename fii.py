@@ -904,9 +904,9 @@ with tab10:
     st.caption("Visão consolidada para tomada de decisão fundamentada")
 
     fii_escolhido = st.selectbox(
-       "Selecione o FII",
-       sorted(df["Fundos"].unique()),
-       key="analise_individual_fii"
+        "Selecione o FII",
+        sorted(df["Fundos"].unique()),
+        key="analise_individual_fii"
     )
 
     row = df[df["Fundos"] == fii_escolhido].iloc[0]
@@ -922,17 +922,34 @@ with tab10:
     c3.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
     c4.metric("Liquidez", f"R$ {row['Liquidez Diária (milhões R$)']:.1f} mi")
 
+    status_preco = "Desconto" if row["P/VP"] < 1 else "Prêmio"
+    status_dy = comparar_com_selic(row["DY (12M) Acumulado"])
+
+    st.caption(
+        f"Preço vs Patrimônio: **{status_preco}** | "
+        f"Renda vs Selic: **{status_dy}**"
+    )
+
     st.divider()
 
     # ===============================
-    # FUNDAMENTOS
+    # FUNDAMENTAÇÃO (CRITÉRIOS DO MONITOR)
     # ===============================
-    st.markdown("### 🧱 Fundamentação")
+    st.markdown("### 🧱 Fundamentação Quantitativa")
 
-    fundamentos = analisar_fii(row)
+    criterios = {
+        "P/VP dentro do intervalo saudável (0,80–1,00)": 0.8 <= row["P/VP"] < 1.0,
+        "Dividendos consistentes no longo prazo (DY 12M ≥ 9,6%)": row["DY (12M) Acumulado"] >= 9.6,
+        "Liquidez diária adequada (≥ R$ 1 mi)": row["Liquidez Diária (milhões R$)"] >= 1,
+        "Porte relevante (PL ≥ R$ 500 mi)": row["Patrimônio Líquido (milhões R$)"] >= 500,
+        "Base sólida de cotistas (≥ 10 mil)": row["Num. Cotistas (milhares)"] >= 10,
+    }
 
-    for f in fundamentos:
-        st.markdown(f"- {f}")
+    score = 0
+    for nome, ok in criterios.items():
+        if ok:
+            score += 1
+        st.markdown(f"- {'✅' if ok else '❌'} {nome}")
 
     st.divider()
 
@@ -946,14 +963,19 @@ with tab10:
     c2.metric("DY 6M", f"{row['DY (6M) Acumulado']:.1f}%")
     c3.metric("DY 12M", f"{row['DY (12M) Acumulado']:.1f}%")
 
-    st.caption(f"Último dividendo: R$ {row['Último Dividendo']:.2f}")
+    st.caption(f"Último dividendo pago: **R$ {row['Último Dividendo']:.2f}**")
+
+    if row["DY (3M) Acumulado"] > row["DY (6M) Acumulado"] / 2:
+        st.caption("📈 Dividendos recentes acima da média histórica")
+    else:
+        st.caption("📉 Dividendos recentes abaixo da média histórica")
 
     st.divider()
 
     # ===============================
-    # CONTEXTO E PORTE
+    # PORTE E RELEVÂNCIA
     # ===============================
-    st.markdown("### 🏢 Porte e relevância")
+    st.markdown("### 🏢 Porte e Relevância")
 
     c1, c2 = st.columns(2)
     c1.metric(
@@ -965,24 +987,50 @@ with tab10:
         f"{row['Num. Cotistas (milhares)']:.0f} mil"
     )
 
+    if row["Patrimônio Líquido (milhões R$)"] >= 1000:
+        st.caption("🏦 Fundo de grande porte, com maior robustez estrutural")
+    else:
+        st.caption("⚠️ Fundo de porte médio — acompanhar eventos e liquidez")
+
     st.divider()
 
     # ===============================
-    # VEREDITO (NÃO RECOMENDAÇÃO)
+    # SIMULAÇÃO RÁPIDA
     # ===============================
-    st.markdown("### 🧭 Leitura atual")
+    st.markdown("### 💡 Simulação de Renda (12 meses)")
+
+    valor_simulado = 10_000
+    renda_estimada = valor_simulado * (row["DY (12M) Acumulado"] / 100)
+
+    st.caption(
+        f"Com **R$ {valor_simulado:,.0f}**, este FII teria gerado "
+        f"aproximadamente **R$ {renda_estimada:,.0f}** em dividendos nos últimos 12 meses."
+    )
+
+    st.divider()
+
+    # ===============================
+    # LEITURA FINAL (NÃO RECOMENDAÇÃO)
+    # ===============================
+    st.markdown("### 🧭 Leitura do Monitor")
+
+    if score >= 4:
+        st.success("FII bem posicionado dentro dos critérios quantitativos do Monitor.")
+    elif score == 3:
+        st.warning("FII com equilíbrio entre pontos fortes e pontos de atenção.")
+    else:
+        st.error("FII com fragilidades relevantes frente aos critérios do Monitor.")
 
     st.info(
         """
-        Esta análise é baseada em critérios quantitativos objetivos.
+        Esta análise é baseada exclusivamente em critérios quantitativos objetivos.
         Não constitui recomendação de compra ou venda.
-        Use como **apoio à decisão**, não como decisão final.
+        Utilize como **apoio à decisão**, não como decisão final.
         """
     )
 
     ticker = row["Fundos"].split(" - ")[0]
     st.markdown(
-        f"[🔗 Ver no Funds Explorer](https://www.fundsexplorer.com.br/funds/{ticker})",
+        f"[🔗 Ver dados completos no Funds Explorer](https://www.fundsexplorer.com.br/funds/{ticker})",
         unsafe_allow_html=True
-    )
-
+        )
