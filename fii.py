@@ -124,7 +124,7 @@ def comparar_com_selic(dy):
 def carregar_dados_acao(ticker):
     acao = yf.Ticker(ticker)
 
-    info = acao.fast_info
+    info = dict(acao.fast_info)
     hist = acao.history(period="5y")
 
     return info, hist
