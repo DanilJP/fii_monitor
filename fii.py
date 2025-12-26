@@ -54,18 +54,14 @@ button {
 """, unsafe_allow_html=True)
 
 def voltar_home():
-    col1, col2 = st.columns([1, 20])
+    st.markdown(
+        "<div style='margin-bottom:8px;'>← <span style='color:#666; font-size:14px;'>Voltar</span></div>",
+        unsafe_allow_html=True
+    )
 
-    with col1:
-        if st.button("←", key="voltar_home"):
-            st.session_state.page = "home"
-            st.rerun()
-
-    with col2:
-        st.markdown(
-            "<span style='font-size:14px; color:#666;'>Voltar</span>",
-            unsafe_allow_html=True
-        )
+    if st.button("", key="voltar_home_click", help="Voltar para o início"):
+        st.session_state.page = "home"
+        st.rerun()
 # =====================================================
 # HELPERS DE NAVEGAÇÃO
 # =====================================================
