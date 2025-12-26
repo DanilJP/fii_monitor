@@ -132,25 +132,29 @@ def carregar_dados_acao(ticker):
 
 def extrair_metricas(info):
     return {
-        "Preço Atual": info.get("currentPrice"),
-        "P/L": info.get("trailingPE"),
-        "P/VP": info.get("priceToBook"),
-        "ROE (%)": info.get("returnOnEquity", 0) * 100 if info.get("returnOnEquity") else None,
-        "ROA (%)": info.get("returnOnAssets", 0) * 100 if info.get("returnOnAssets") else None,
-        "Margem Líquida (%)": info.get("profitMargins", 0) * 100 if info.get("profitMargins") else None,
-        "Dívida/Patrimônio": info.get("debtToEquity"),
-        "Crescimento Receita (%)": info.get("revenueGrowth", 0) * 100 if info.get("revenueGrowth") else None,
-        "Market Cap (R$ bi)": info.get("marketCap") / 1e9 if info.get("marketCap") else None
+        "Preço Atual": info.get("last_price"),
+        "P/L": info.get("trailing_pe"),
+        "P/VP": info.get("price_to_book"),
+        "ROE (%)": (info.get("return_on_equity") or 0) * 100,
+        "ROA (%)": (info.get("return_on_assets") or 0) * 100,
+        "Margem Líquida (%)": (info.get("net_profit_margin") or 0) * 100,
+        "Dívida/Patrimônio": info.get("debt_to_equity"),
+        "Crescimento Receita (%)": (info.get("revenue_growth") or 0) * 100,
+        "Market Cap (R$ bi)": (info.get("market_cap") or 0) / 1e9,
     }
+
 
 def backtest_valorizacao(hist):
     preco_inicial = hist["Close"].iloc[0]
     preco_final = hist["Close"].iloc[-1]
 
     retorno_total = ((preco_final / preco_inicial) - 1) * 100
-    retorno_anual = (1 + retorno_total/100) ** (1/5) - 1
 
-    return retorno_total, retorno_anual * 100
+    anos = (hist["Date"].iloc[-1] - hist["Date"].iloc[0]).days / 365
+    retorno_anual = ((preco_final / preco_inicial) ** (1 / anos) - 1) * 100
+
+    return retorno_total, retorno_anual
+    
 # =====================================================
 # AVISO LEGAL — POPUP APENAS NA PRIMEIRA VISITA
 # =====================================================
