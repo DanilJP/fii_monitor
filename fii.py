@@ -424,7 +424,7 @@ if st.session_state.page == "home":
 # =====================================================
 # TAB — MÉTRICAS
 # =====================================================
-elif st.session_stage.page == 'metricas':
+elif st.session_state.page == 'metricas':
     st.subheader("📘 Entendendo as principais métricas dos FIIs")
 
     st.caption(
@@ -531,7 +531,7 @@ elif st.session_stage.page == 'metricas':
 # =====================================================
 # TAB — TOP 10 DESCONTADOS
 # =====================================================
-elif st.session_stage.page == 'top10':
+elif st.session_state.page == 'top10':
     st.subheader("📊 Top 10 FIIs Descontados com Qualidade")
 
     if df_top10.empty:
@@ -594,7 +594,7 @@ elif st.session_stage.page == 'top10':
 # =====================================================
 # TAB — GRANDES FIIs
 # =====================================================
-elif st.session_stage.page == 'grandes':
+elif st.session_state.page == 'grandes':
     st.subheader("🏦 Grandes FIIs do Mercado")
     st.caption("Fundos com maior patrimônio líquido e alta relevância no mercado.")
 
@@ -619,7 +619,7 @@ elif st.session_stage.page == 'grandes':
 # =====================================================
 # TAB — FIIs DE ENTRADA
 # =====================================================
-elif st.session_stage.page == 'entrada':
+elif st.session_state.page == 'entrada':
     st.subheader("💸 FIIs de Entrada")
     st.caption(
         "Fundos com cotas mais acessíveis, boa liquidez e histórico consistente de dividendos."
@@ -650,7 +650,7 @@ elif st.session_stage.page == 'entrada':
 # =====================================================
 # TAB — SCREENER PERSONALIZADO
 # =====================================================
-elif st.session_stage.page == 'screener':
+elif st.session_state.page == 'screener':
     st.subheader("🧠 Screener Personalizado de FIIs")
     st.caption("Crie seus próprios filtros para encontrar FIIs alinhados ao seu perfil.")
 
@@ -717,7 +717,7 @@ elif st.session_stage.page == 'screener':
 # =====================================================
 # TAB — COMPARADOR DE FIIs
 # =====================================================
-elif st.session_stage.page == 'comparador':
+elif st.session_state.page == 'comparador':
     st.subheader("⚖️ Comparador de FIIs")
     st.caption("Compare dois FIIs lado a lado com critérios objetivos.")
 
@@ -791,7 +791,7 @@ elif st.session_stage.page == 'comparador':
 # =====================================================
 # TAB — NOTÍCIAS
 # =====================================================
-elif st.session_stage.page == 'notocias':
+elif st.session_state.page == 'notocias':
     st.subheader("📰 Notícias recentes por FII")
     st.caption(
         "Acompanhe notícias recentes para entender o contexto "
@@ -842,7 +842,7 @@ elif st.session_stage.page == 'notocias':
 # =====================================================
 # TAB — SIMULADOR DE REINVESTIMENTO
 # =====================================================
-elif st.session_stage.page == 'reinvest':
+elif st.session_state.page == 'reinvest':
     st.subheader("🔁 Simulador de Reinvestimento de Dividendos")
     st.caption(
         "Calcule quantas cotas de um FII são necessárias para que "
@@ -925,7 +925,7 @@ elif st.session_stage.page == 'reinvest':
 # =====================================================
 # TAB — SIMULAÇÃO DE CARTEIRA
 # =====================================================
-elif st.session_stage.page == 'carteira':
+elif st.session_state.page == 'carteira':
     st.subheader("💼 Simulação da sua Carteira de FIIs")
     st.caption(
         "Informe os FIIs e a quantidade de cotas para estimar "
@@ -1028,7 +1028,7 @@ elif st.session_stage.page == 'carteira':
  # =====================================================
 # TAB — ANÁLISE INDIVIDUAL DE FII
 # =====================================================
-elif st.session_stage.page == 'fii':
+elif st.session_state.page == 'fii':
     st.subheader("🔎 Análise Individual de FII")
     st.caption("Visão consolidada e objetiva para apoio à decisão")
 
