@@ -412,87 +412,35 @@ tab_comparador, tab_noticias, tab_reinvest, tab_carteira, tab_fii, tab_acoes = s
     ]
 )
 
-# =====================================================
-# TAB — HOME
-# =====================================================
-with tab_home:
-    st.subheader("📌 Bem-vindo ao FIIs Monitor")
-
-    st.markdown(
-        """
-        **FIIs Monitor** é um ecossistema para apoiar decisões em Fundos Imobiliários (FIIs),
-        reunindo análises quantitativas, rankings, simuladores e notícias em um só lugar.
-        """
-    )
+if st.session_state.page == "home":
+    st.title("📍 FIIs Monitor")
+    st.caption("Onde decisões de investimento encontram fundamentos.")
 
     st.divider()
 
-    st.markdown("### 🧭 Como usar o FIIs Monitor")
+    c1, c2 = st.columns(2)
 
-    st.markdown(
-        """
-        **1️⃣ Comece pelos rankings**
-        - **Top 10**: FIIs descontados com dividendos consistentes  
-        - **Grandes FIIs**: fundos mais robustos do mercado  
-        - **FIIs de Entrada**: cotas acessíveis para começar
+    with c1:
+        card("📊 Top 10", "FIIs descontados com qualidade", "top10")
+        card("🏦 Grandes FIIs", "Fundos mais relevantes", "grandes")
+        card("💸 FIIs de Entrada", "Cotas acessíveis", "entrada")
+        card("🧠 Screener", "Crie seus próprios filtros", "screener")
 
-        **2️⃣ Aprofunde com ferramentas**
-        - **Screener**: crie seus próprios filtros  
-        - **Comparador**: compare dois FIIs lado a lado
-
-        **3️⃣ Planeje sua renda**
-        - **Reinvestimento**: veja quantas cotas precisa para se auto financiar  
-        - **Carteira**: estime renda mensal e DY
-
-        **4️⃣ Contexto**
-        - **Notícias recentes** centralizadas por FII
-        """
-    )
+    with c2:
+        card("⚖️ Comparador", "Compare FIIs lado a lado", "comparador")
+        card("📰 Notícias", "Contexto e eventos recentes", "noticias")
+        card("🔁 Reinvestimento", "Simulador de renda", "reinvest")
+        card("💼 Carteira", "Simule sua carteira", "carteira")
 
     st.divider()
-
-    st.markdown("### 🧪 Metodologia")
-
-    st.markdown(
-        """
-        O FIIs Monitor utiliza **critérios quantitativos objetivos**, como:
-        - P/VP  
-        - Dividend Yield histórico (3M, 6M, 12M)  
-        - Liquidez diária  
-        - Patrimônio líquido  
-        - Número de cotistas  
-
-        Nenhuma análise aqui constitui recomendação de investimento.
-        """
-    )
-
-    with st.container(border=True):
-        st.markdown("### 🚧 Projeto em validação")
-
-        st.markdown(
-            """
-            Este projeto está em **fase de testes**.
-
-            Se você investe em FIIs, seu feedback é essencial
-            para evoluirmos a ferramenta com foco no que realmente importa.
-            """
-        )
-
-    st.markdown(
-        "👉 [Enviar feedback](https://docs.google.com/forms/d/e/1FAIpQLSeJcPsOTjJw-jTUoBwCxtoCAIPVLIH2kJVkm-xYG9GlOBUSuA/viewform)",
-        unsafe_allow_html=True
-    )
-
-    st.info(
-        "⚠️ Este aplicativo não constitui recomendação de investimento. "
-        "As análises são baseadas em dados históricos e critérios quantitativos."
-    )
-
+    card("🔎 Métricas", "Metricas", "metricas")
+    card("🔎 FII Individual", "Análise detalhada", "fii")
+    card("📈 Ações", "Análise fundamentalista", "acoes")
 
 # =====================================================
 # TAB — MÉTRICAS
 # =====================================================
-with tab_metricas:
+elif st.session_stage.page == 'metricas':
     st.subheader("📘 Entendendo as principais métricas dos FIIs")
 
     st.caption(
@@ -599,7 +547,7 @@ with tab_metricas:
 # =====================================================
 # TAB — TOP 10 DESCONTADOS
 # =====================================================
-with tab_top10:
+elif st.session_stage.page == 'top10':
     st.subheader("📊 Top 10 FIIs Descontados com Qualidade")
 
     if df_top10.empty:
@@ -662,7 +610,7 @@ with tab_top10:
 # =====================================================
 # TAB — GRANDES FIIs
 # =====================================================
-with tab_grandes:
+elif st.session_stage.page == 'grandes':
     st.subheader("🏦 Grandes FIIs do Mercado")
     st.caption("Fundos com maior patrimônio líquido e alta relevância no mercado.")
 
@@ -687,7 +635,7 @@ with tab_grandes:
 # =====================================================
 # TAB — FIIs DE ENTRADA
 # =====================================================
-with tab_entrada:
+elif st.session_stage.page == 'entrada':
     st.subheader("💸 FIIs de Entrada")
     st.caption(
         "Fundos com cotas mais acessíveis, boa liquidez e histórico consistente de dividendos."
@@ -718,7 +666,7 @@ with tab_entrada:
 # =====================================================
 # TAB — SCREENER PERSONALIZADO
 # =====================================================
-with tab_screener:
+elif st.session_stage.page == 'screener':
     st.subheader("🧠 Screener Personalizado de FIIs")
     st.caption("Crie seus próprios filtros para encontrar FIIs alinhados ao seu perfil.")
 
@@ -785,7 +733,7 @@ with tab_screener:
 # =====================================================
 # TAB — COMPARADOR DE FIIs
 # =====================================================
-with tab_comparador:
+elif st.session_stage.page == 'comparador':
     st.subheader("⚖️ Comparador de FIIs")
     st.caption("Compare dois FIIs lado a lado com critérios objetivos.")
 
@@ -859,7 +807,7 @@ with tab_comparador:
 # =====================================================
 # TAB — NOTÍCIAS
 # =====================================================
-with tab_noticias:
+elif st.session_stage.page == 'notocias':
     st.subheader("📰 Notícias recentes por FII")
     st.caption(
         "Acompanhe notícias recentes para entender o contexto "
@@ -910,7 +858,7 @@ with tab_noticias:
 # =====================================================
 # TAB — SIMULADOR DE REINVESTIMENTO
 # =====================================================
-with tab_reinvest:
+elif st.session_stage.page == 'reinvest':
     st.subheader("🔁 Simulador de Reinvestimento de Dividendos")
     st.caption(
         "Calcule quantas cotas de um FII são necessárias para que "
@@ -993,7 +941,7 @@ with tab_reinvest:
 # =====================================================
 # TAB — SIMULAÇÃO DE CARTEIRA
 # =====================================================
-with tab_carteira:
+elif st.session_stage.page == 'carteira':
     st.subheader("💼 Simulação da sua Carteira de FIIs")
     st.caption(
         "Informe os FIIs e a quantidade de cotas para estimar "
@@ -1096,7 +1044,7 @@ with tab_carteira:
  # =====================================================
 # TAB — ANÁLISE INDIVIDUAL DE FII
 # =====================================================
-with tab_fii:
+elif st.session_stage.page == 'fii':
     st.subheader("🔎 Análise Individual de FII")
     st.caption("Visão consolidada e objetiva para apoio à decisão")
 
