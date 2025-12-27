@@ -947,7 +947,7 @@ elif st.session_state.page == 'comparador':
 # =====================================================
 # TAB — NOTÍCIAS
 # =====================================================
-elif st.session_state.page == 'notocias':
+elif st.session_state.page == 'noticias':
     st.subheader("📰 Notícias recentes por FII")
     st.caption(
         "Acompanhe notícias recentes para entender o contexto "
@@ -998,7 +998,7 @@ elif st.session_state.page == 'notocias':
 # =====================================================
 # TAB — SIMULADOR DE REINVESTIMENTO
 # =====================================================
-elif st.session_state.page == 'reinvest':
+elif st.session_state.page == 'reinvestimento':
     st.subheader("🔁 Simulador de Reinvestimento de Dividendos")
     st.caption(
         "Calcule quantas cotas de um FII são necessárias para que "
