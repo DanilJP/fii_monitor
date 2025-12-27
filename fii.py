@@ -436,24 +436,25 @@ df_top10 = (
 
 voltar_home()
 
-col1, col2 = st.columns(2)
 
-with col1:
-    st.button("📊 Top 10 FIIs")
-
-with col2:
-    st.button("💼 Carteira")
-
-with col1:
-    st.button("⚖️ Comparador")
-
-with col2:
-    st.button("🧠 Screener")
 
 if st.session_state.page == "home":
     st.title("📍 FIIs Monitor")
     st.caption("Onde decisões de investimento encontram fundamentos.")
 
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.button("📊 Top 10 FIIs")
+
+    with col2:
+        st.button("💼 Carteira")
+
+    with col1:
+        st.button("⚖️ Comparador")
+
+    with col2:
+        st.button("🧠 Screener")
     st.divider()
 
     st.markdown("<div class='grid-buttons'>", unsafe_allow_html=True)
