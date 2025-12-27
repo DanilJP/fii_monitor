@@ -20,22 +20,19 @@ div[data-testid="column"] {
 
 st.markdown("""
 <style>
-.grid-buttons {
+.grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
-
-@media (max-width: 600px) {
-    .grid-buttons {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-.grid-buttons button {
-    height: 90px !important;
-    font-size: 14px !important;
-    border-radius: 14px !important;
+.grid button {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: none;
+    background-color: #0f172a;
+    color: white;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -450,13 +447,22 @@ if st.session_state.page == "home":
     st.title("📍 FIIs Monitor")
     st.caption("Onde decisões de investimento encontram fundamentos.")
 
-    ex1, ex2 = st.columns(2)
-
-    with ex1:
-        st.button("📊 Top 10", use_container_width=True)
-
-    with ex2:
-        st.button("💼 Carteira", use_container_width=True)
+    st.markdown("""
+    <div class="grid">
+        <form action="?page=rankings">
+            <button type="submit">📊 Rankings</button>
+        </form>
+        <form action="?page=analise">
+            <button type="submit">🧠 Análise</button>
+        </form>
+        <form action="?page=comparador">
+            <button type="submit">⚖️ Comparador</button>
+        </form>
+        <form action="?page=carteira">
+            <button type="submit">💼 Carteira</button>
+        </form>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("<div class='grid-buttons'>", unsafe_allow_html=True)
 
