@@ -12,55 +12,49 @@ import yfinance as yf
 
 st.markdown("""
 <style>
-/* Botões do grid da Home */
+/* Botões da Home – estilo institucional */
 div[data-testid="column"] > div > div > div.stButton > button {
-    height: 108px;
+    height: 96px;
     width: 100%;
 
-    /* Tipografia */
+    /* Tipografia limpa */
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.2px;
 
     /* Forma */
-    border-radius: 18px;
+    border-radius: 14px;
 
-    /* Cores – azul institucional */
-    background: linear-gradient(180deg, #0b1f33 0%, #071423 100%);
-    color: #eaf1f8;
+    /* Cor sólida (nada de gradiente) */
+    background-color: #0b1f33;
+    color: #e6edf3;
 
     /* Borda sutil */
-    border: 1px solid rgba(80, 140, 200, 0.25);
+    border: 1px solid rgba(120, 160, 200, 0.25);
 
     /* Layout */
-    padding: 14px;
+    padding: 12px;
     text-align: center;
 
-    /* Sombra elegante */
-    box-shadow: 0 6px 18px rgba(5, 15, 30, 0.35);
+    /* Sem sombra chamativa */
+    box-shadow: none;
 
-    /* Animação */
-    transition: 
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
+    /* Transição quase imperceptível */
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-/* Hover */
+/* Hover discreto */
 div[data-testid="column"] > div > div > div.stButton > button:hover {
-    background: linear-gradient(180deg, #102a44 0%, #0b1f33 100%);
-    box-shadow: 0 10px 26px rgba(5, 20, 40, 0.45);
-    transform: translateY(-2px);
+    background-color: #102a44;
+    border-color: rgba(140, 180, 220, 0.35);
 }
 
 /* Click */
 div[data-testid="column"] > div > div > div.stButton > button:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 12px rgba(5, 15, 30, 0.35);
+    background-color: #081726;
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 
 # =====================================================
@@ -452,29 +446,39 @@ if st.session_state.page == "home":
 
     c1, c2 = st.columns(2)
 
-    if c1.button("📊 Rankings\nTop FIIs", use_container_width=True):
-        st.session_state.page = "top10"
-        st.rerun()
+    with c1:
+        if st.button("📊 Rankings\nTop FIIs", use_container_width=True):
+            st.session_state.page = "top10"
+            st.rerun()
 
-    if c2.button("🔎 Análise Individual\nFII", use_container_width=True):
-        st.session_state.page = "fii"
-        st.rerun()
+    with c2:
+        if st.button("🔎 Análise Individual\nFII", use_container_width=True):
+            st.session_state.page = "fii"
+            st.rerun()
 
-    if c1.button("⚖️ Comparador\nFIIs", use_container_width=True):
-        st.session_state.page = "comparador"
-        st.rerun()
+    c1, c2 = st.columns(2)
 
-    if c2.button("🧠 Screener\nPersonalizado", use_container_width=True):
-        st.session_state.page = "screener"
-        st.rerun()
+    with c1:
+        if st.button("⚖️ Comparador\nFIIs", use_container_width=True):
+            st.session_state.page = "comparador"
+            st.rerun()
 
-    if c1.button("🔁 Reinvestimento\nDividendos", use_container_width=True):
-        st.session_state.page = "reinvestimento"
-        st.rerun()
+    with c2:
+        if st.button("🧠 Screener\nPersonalizado", use_container_width=True):
+            st.session_state.page = "screener"
+            st.rerun()
 
-    if c2.button("💼 Carteira\nSimulador", use_container_width=True):
-        st.session_state.page = "carteira"
-        st.rerun()
+    c1, c2 = st.columns(2)
+
+    with c1:
+        if st.button("🔁 Reinvestimento\nDividendos", use_container_width=True):
+            st.session_state.page = "reinvestimento"
+            st.rerun()
+
+    with c2:
+        if st.button("💼 Carteira\nSimulador", use_container_width=True):
+            st.session_state.page = "carteira"
+            st.rerun()
 
 # =====================================================
 # TAB — MÉTRICAS
