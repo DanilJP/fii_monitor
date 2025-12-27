@@ -498,6 +498,11 @@ if st.session_state.page == "home":
         unsafe_allow_html=True
     )
 
+    # =========================
+    # RANKINGS E DESCOBERTA
+    # =========================
+    st.markdown("#### 📊 Rankings e Descoberta")
+
     c1, c2 = st.columns(2)
 
     with c1:
@@ -506,21 +511,43 @@ if st.session_state.page == "home":
             st.rerun()
 
     with c2:
-        if st.button("🔎 Análise Individual\nFII", use_container_width=True):
-            st.session_state.page = "fii"
+        if st.button("🏦 Grandes\nFIIs", use_container_width=True):
+            st.session_state.page = "grandes"
             st.rerun()
 
     c1, c2 = st.columns(2)
 
     with c1:
-        if st.button("⚖️ Comparador\nFIIs", use_container_width=True):
-            st.session_state.page = "comparador"
+        if st.button("💸 FIIs de\nEntrada", use_container_width=True):
+            st.session_state.page = "entrada"
             st.rerun()
 
     with c2:
         if st.button("🧠 Screener\nPersonalizado", use_container_width=True):
             st.session_state.page = "screener"
             st.rerun()
+
+    # =========================
+    # ANÁLISE E DECISÃO
+    # =========================
+    st.markdown("#### 🧭 Análise e Decisão")
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+        if st.button("🔎 Análise\nIndividual FII", use_container_width=True):
+            st.session_state.page = "fii"
+            st.rerun()
+
+    with c2:
+        if st.button("⚖️ Comparador\nFIIs", use_container_width=True):
+            st.session_state.page = "comparador"
+            st.rerun()
+
+    # =========================
+    # PLANEJAMENTO
+    # =========================
+    st.markdown("#### 🔁 Planejamento e Simulações")
 
     c1, c2 = st.columns(2)
 
@@ -534,6 +561,22 @@ if st.session_state.page == "home":
             st.session_state.page = "carteira"
             st.rerun()
 
+    # =========================
+    # CONTEXTO
+    # =========================
+    st.markdown("#### 📰 Contexto e Educação")
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+        if st.button("📰 Notícias\npor FII", use_container_width=True):
+            st.session_state.page = "noticias"
+            st.rerun()
+
+    with c2:
+        if st.button("📘 Entenda\nas Métricas", use_container_width=True):
+            st.session_state.page = "metricas"
+            st.rerun()
 # =====================================================
 # TAB — MÉTRICAS
 # =====================================================
