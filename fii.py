@@ -12,33 +12,51 @@ import yfinance as yf
 
 st.markdown("""
 <style>
-/* SOMENTE botões do grid da Home */
+/* Botões do grid da Home */
 div[data-testid="column"] > div > div > div.stButton > button {
-    height: 110px;
+    height: 108px;
     width: 100%;
-    font-size: 16px;
+
+    /* Tipografia */
+    font-size: 15px;
     font-weight: 600;
-    border-radius: 16px;
+    letter-spacing: 0.2px;
 
-    background: linear-gradient(180deg, #0b1f33 0%, #081726 100%);
-    color: #e8edf3;
+    /* Forma */
+    border-radius: 18px;
 
-    border: 1px solid #123a5f;
-    padding: 12px 14px;
+    /* Cores – azul institucional */
+    background: linear-gradient(180deg, #0b1f33 0%, #071423 100%);
+    color: #eaf1f8;
+
+    /* Borda sutil */
+    border: 1px solid rgba(80, 140, 200, 0.25);
+
+    /* Layout */
+    padding: 14px;
     text-align: center;
 
-    transition: all 0.25s ease-in-out;
+    /* Sombra elegante */
+    box-shadow: 0 6px 18px rgba(5, 15, 30, 0.35);
+
+    /* Animação */
+    transition: 
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
 }
 
+/* Hover */
 div[data-testid="column"] > div > div > div.stButton > button:hover {
     background: linear-gradient(180deg, #102a44 0%, #0b1f33 100%);
-    border-color: #1f5c8f;
+    box-shadow: 0 10px 26px rgba(5, 20, 40, 0.45);
     transform: translateY(-2px);
 }
 
+/* Click */
 div[data-testid="column"] > div > div > div.stButton > button:active {
-    transform: translateY(0px);
-    background: #081726;
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(5, 15, 30, 0.35);
 }
 </style>
 """, unsafe_allow_html=True)
