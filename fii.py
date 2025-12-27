@@ -472,7 +472,58 @@ df_top10 = (
 # =====================================================
 # TABS
 # =====================================================
+@st.cache_data(ttl=60 * 60)
+def carregar_dados_acao(ticker):
+    acao = yf.Ticker(ticker)
+    info = acao.info
+    hist = acao.history(period="5y")
+    return info, hist
 
+
+def extrair_metricas_acao(info):
+    return {
+        "Preço Atual": info.get("currentPrice"),
+        "P/L": info.get("trailingPE"),
+        "P/VP": info.get("priceToBook"),
+        "ROE (%)": (info.get("returnOnEquity") or 0) * 100,
+        "ROA (%)": (info.get("returnOnAssets") or 0) * 100,
+        "Margem Líquida (%)": (info.get("profitMargins") or 0) * 100,
+        "Dívida/Patrimônio": info.get("debtToEquity"),
+        "Market Cap (R$ bi)": (info.get("marketCap") or 0) / 1e9,
+        "Crescimento Receita (%)": (info.get("revenueGrowth") or 0) * 100,
+        "Crescimento Lucro (%)": (info.get("earningsGrowth") or 0) * 100,
+    }
+
+
+def classificar_saude(metricas):
+    pontos = 0
+    if metricas["ROE (%)"] and metricas["ROE (%)"] > 15:
+        pontos += 1
+    if metricas["Dívida/Patrimônio"] and metricas["Dívida/Patrimônio"] < 1.5:
+        pontos += 1
+    if metricas["Margem Líquida (%)"] and metricas["Margem Líquida (%)"] > 10:
+        pontos += 1
+
+    if pontos >= 3:
+        return "🟢 Saudável"
+    elif pontos == 2:
+        return "🟡 Atenção"
+    else:
+        return "🔴 Frágil"
+
+
+def backtest_valorizacao(hist):
+    if hist.empty:
+        return None, None
+
+    preco_inicial = hist["Close"].iloc[0]
+    preco_final = hist["Close"].iloc[-1]
+
+    retorno_total = (preco_final / preco_inicial - 1) * 100
+    anos = (hist.index[-1] - hist.index[0]).days / 365
+    retorno_anual = ((preco_final / preco_inicial) ** (1 / anos) - 1) * 100
+
+    return retorno_total, retorno_anual
 
 if st.session_state.page == "home":
 
@@ -543,6 +594,10 @@ if st.session_state.page == "home":
         if st.button("⚖️ Comparador\nFIIs", use_container_width=True):
             st.session_state.page = "comparador"
             st.rerun()
+
+    if st.button("📈 Ações\nAnálise Fundamentalista", use_container_width=True):
+        st.session_state.page = "acao"
+        st.rerun()
 
     # =========================
     # PLANEJAMENTO
@@ -1321,7 +1376,89 @@ if st.button("← Voltar", key="voltar_home", type="secondary"):
     st.session_state.page = "home"
     st.rerun()
 
+elif st.session_state.page == "acao":
 
+    # Botão voltar
+    st.markdown(
+        "<a style='font-size:14px;color:#9bb0c9;text-decoration:none;'>← Voltar</a>",
+        unsafe_allow_html=True
+    )
+    if st.button(" ", key="voltar_home_acao"):
+        st.session_state.page = "home"
+        st.rerun()
+
+    st.subheader("📈 Análise Fundamentalista de Ações")
+    st.caption("Saúde financeira, crescimento e valorização no tempo")
+
+    ticker = st.selectbox(
+        "Selecione a ação",
+        ["ITUB4.SA", "VALE3.SA", "PETR4.SA", "WEGE3.SA"],
+        key="acao_individual"
+    )
+
+    info, hist = carregar_dados_acao(ticker)
+    metricas = extrair_metricas_acao(info)
+
+    # =====================
+    # VISÃO RÁPIDA
+    # =====================
+    st.markdown("### 📌 Visão rápida")
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Preço", f"R$ {metricas['Preço Atual']:.2f}" if metricas["Preço Atual"] else "—")
+    c2.metric("P/L", f"{metricas['P/L']:.1f}" if metricas["P/L"] else "—")
+    c3.metric("P/VP", f"{metricas['P/VP']:.2f}" if metricas["P/VP"] else "—")
+    c4.metric("ROE", f"{metricas['ROE (%)']:.1f}%" if metricas["ROE (%)"] else "—")
+
+    st.divider()
+
+    # =====================
+    # SAÚDE
+    # =====================
+    st.markdown("### 🧱 Saúde da empresa")
+
+    st.metric("Classificação Refera", classificar_saude(metricas))
+
+    st.markdown(f"""
+    - **Margem Líquida:** {metricas['Margem Líquida (%)']:.1f}%  
+    - **ROA:** {metricas['ROA (%)']:.1f}%  
+    - **Dívida / Patrimônio:** {metricas['Dívida/Patrimônio']:.2f}  
+    """)
+
+    st.divider()
+
+    # =====================
+    # CRESCIMENTO
+    # =====================
+    st.markdown("### 🚀 Crescimento")
+
+    c1, c2 = st.columns(2)
+    c1.metric("Crescimento Receita", f"{metricas['Crescimento Receita (%)']:.1f}%")
+    c2.metric("Crescimento Lucro", f"{metricas['Crescimento Lucro (%)']:.1f}%")
+
+    st.divider()
+
+    # =====================
+    # BACKTEST
+    # =====================
+    st.markdown("### ⏱️ Valorização histórica (5 anos)")
+
+    retorno_total, retorno_anual = backtest_valorizacao(hist)
+
+    if retorno_total is not None:
+        c1, c2 = st.columns(2)
+        c1.metric("Retorno Total", f"{retorno_total:.1f}%")
+        c2.metric("Retorno Anualizado", f"{retorno_anual:.1f}%")
+        st.line_chart(hist["Close"])
+    else:
+        st.info("Histórico insuficiente.")
+
+    st.divider()
+
+    st.info(
+        "Leitura quantitativa baseada em fundamentos e histórico. "
+        "Não constitui recomendação de investimento."
+    )
 
 
 
