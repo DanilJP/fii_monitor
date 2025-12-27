@@ -1463,7 +1463,7 @@ ticker = st.selectbox(
     c1, c2 = st.columns(2)
     c1.metric("Crescimento Receita", f"{metricas['Crescimento Receita (%)']:.1f}%")
     c2.metric("Crescimento Lucro", f"{metricas['Crescimento Lucro (%)']:.1f}%")
-if st.session_state.page == "acao":
+elif st.session_state.page == "acao":
 
     st.markdown("### 📈 Análise Fundamentalista de Ações")
     st.caption("Leitura objetiva focada em saúde, preço e crescimento")
