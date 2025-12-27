@@ -12,38 +12,23 @@ import yfinance as yf
 
 st.markdown("""
 <style>
-div[data-testid="column"] {
-    padding: 0.25rem;
+div.stButton > button {
+    height: 110px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 14px;
+    border: 1px solid #e0e0e0;
+    background: #ffffff;
+    color: #0b1f33;
+}
+div.stButton > button:hover {
+    border-color: #0b1f33;
+    background: #f5f7fa;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-top: 16px;
-}
-.grid button {
-    width: 100%;
-    padding: 18px 12px;
-    font-size: 15px;
-    border-radius: 14px;
-    border: none;
-    background-color: #0f172a;
-    color: white;
-    font-weight: 600;
-}
-.grid button:hover {
-    background-color: #1e293b;
-}
-.back-btn {
-    margin-bottom: 12px;
-}
-</style>
-""", unsafe_allow_html=True)
+
 
 # =====================================================
 # CONFIG STREAMLIT
@@ -456,43 +441,32 @@ if st.session_state.page == "home":
     st.subheader("📌 Refera")
     st.caption("Onde decisões de investimento encontram fundamento")
 
-    st.markdown("""
-    <div class="grid">
-        <form action="#" method="post">
-            <button name="rankings">📊 Rankings</button>
-        </form>
-        <form action="#" method="post">
-            <button name="analise_fii">🔎 Análise de FII</button>
-        </form>
-        <form action="#" method="post">
-            <button name="comparador">⚖️ Comparador</button>
-        </form>
-        <form action="#" method="post">
-            <button name="screener">🧠 Screener</button>
-        </form>
-        <form action="#" method="post">
-            <button name="reinvestimento">🔁 Reinvestimento</button>
-        </form>
-        <form action="#" method="post">
-            <button name="carteira">💼 Carteira</button>
-        </form>
-        <form action="#" method="post">
-            <button name="noticias">📰 Notícias</button>
-        </form>
-        <form action="#" method="post">
-            <button name="acoes">📈 Ações</button>
-        </form>
-    </div>
-    """, unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
 
-    # captura do clique
-    for key in [
-        "rankings","analise_fii","comparador","screener",
-        "reinvestimento","carteira","noticias","acoes"
-    ]:
-        if key in st.session_state:
-            st.session_state.page = key
-            st.rerun()
+    if c1.button("📊 Rankings\nTop FIIs", use_container_width=True):
+        st.session_state.page = "rankings"
+        st.rerun()
+
+    if c2.button("🔎 Análise Individual\nFII", use_container_width=True):
+        st.session_state.page = "analise_fii"
+        st.rerun()
+
+    if c1.button("⚖️ Comparador\nFIIs", use_container_width=True):
+        st.session_state.page = "comparador"
+        st.rerun()
+
+    if c2.button("🧠 Screener\nPersonalizado", use_container_width=True):
+        st.session_state.page = "screener"
+        st.rerun()
+
+    if c1.button("🔁 Reinvestimento\nDividendos", use_container_width=True):
+        st.session_state.page = "reinvestimento"
+        st.rerun()
+
+    if c2.button("💼 Carteira\nSimulador", use_container_width=True):
+        st.session_state.page = "carteira"
+        st.rerun()
+
 # =====================================================
 # TAB — MÉTRICAS
 # =====================================================
