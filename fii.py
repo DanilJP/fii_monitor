@@ -12,6 +12,55 @@ import yfinance as yf
 
 st.markdown("""
 <style>
+/* ===== FUNDO DO APP ===== */
+.stApp {
+    background: linear-gradient(180deg, #081726 0%, #0b1f33 100%);
+}
+
+/* ===== TÍTULOS ===== */
+h1, h2, h3, h4 {
+    color: #e8edf3;
+}
+
+/* ===== TEXTO PADRÃO ===== */
+p, span, label {
+    color: #c9d4e3;
+}
+
+/* ===== BOTÕES DO GRID (HOME) ===== */
+div[data-testid="column"] button {
+    height: 110px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 16px;
+
+    background: linear-gradient(180deg, #0f2a44 0%, #0b1f33 100%);
+    color: #e8edf3;
+
+    border: 1px solid #1f5c8f;
+    padding: 14px;
+
+    transition: all 0.25s ease-in-out;
+}
+
+/* Hover elegante */
+div[data-testid="column"] button:hover {
+    background: linear-gradient(180deg, #123a5f 0%, #0f2a44 100%);
+    transform: translateY(-2px);
+    border-color: #4da3ff;
+}
+
+/* Clique */
+div[data-testid="column"] button:active {
+    transform: translateY(0px);
+    background: #0b1f33;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
 /* Botões da Home – estilo institucional */
 div[data-testid="column"] > div > div > div.stButton > button {
     height: 96px;
