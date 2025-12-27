@@ -1385,35 +1385,7 @@ elif st.session_state.page == "acao":
 
     st.subheader("📈 Análise Fundamentalista de Ações")
     st.caption("Saúde financeira, crescimento e valorização no tempo")
-    ticker = st.selectbox("Selecione a ação",[
-        # Bancos / Financeiro
-        "ITUB4.SA", "ITUB3.SA", "BBDC4.SA", "BBDC3.SA", "BBAS3.SA",
-        "SANB11.SA", "BPAC11.SA", "BPAC3.SA", "BPAC5.SA",
-
-        # Energia / Utilities
-        "TAEE11.SA", "TAEE4.SA", "EGIE3.SA", "ENBR3.SA", "CPLE6.SA",
-        "CMIG4.SA", "TRPL4.SA",
-
-        # Commodities / Indústria pesada
-        "VALE3.SA", "PETR4.SA", "PETR3.SA", "GGBR4.SA", "CSNA3.SA",
-        "USIM5.SA",
-
-        # Consumo / Varejo
-        "ABEV3.SA", "MGLU3.SA", "LREN3.SA", "ASAI3.SA",
-        "HYPE3.SA", "RADL3.SA",
-
-        # Tecnologia / Indústria de qualidade
-        "WEGE3.SA", "TOTS3.SA", "EMBR3.SA",
-
-        # Saúde
-        "FLRY3.SA", "HAPV3.SA", "QUAL3.SA", "RDOR3.SA",
-
-        # Infraestrutura / Logística
-        "RAIL3.SA", "ECOR3.SA", "CCRO3.SA", "SBSP3.SA",
-
-        # Outros setores relevantes
-        "PRIO3.SA", "VIVT3.SA", "TIMS3.SA", "KLBN11.SA",
-        "SUZB3.SA", "BRFS3.SA"],key="acao_individual" )
+    ticker = st.selectbox("Selecione a ação",["SUZB3.SA", "BRFS3.SA"],key="acao_individual" )
 
     info, hist = carregar_dados_acao(ticker)
     metricas = extrair_metricas_acao(info)
