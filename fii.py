@@ -479,7 +479,7 @@ if st.session_state.page == "home":
     st.markdown(
         """
         <div style="margin-bottom: 12px;">
-            <h2 style="margin-bottom:4px;">Refera</h2>
+            <h2 style="margin-bottom:4px;">🪙 Refera</h2>
             <p style="margin-top:0; font-size:15px; color:#c9d4e3;">
                 Onde decisões de investimento encontram fundamento
             </p>
