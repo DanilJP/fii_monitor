@@ -160,7 +160,24 @@ def card(titulo, descricao, page_key):
     ):
         st.session_state.page = page_key
         st.rerun()
+import plotly.express as px
 
+def grafico_preco_acao(hist, ticker):
+    fig = px.line(
+        hist,
+        x=hist.index,
+        y="Close",
+        title=f"Histórico de Preço — {ticker}",
+        labels={"Close": "Preço (R$)", "index": "Data"},
+    )
+
+    fig.update_layout(
+        template="plotly_dark",
+        height=400,
+        margin=dict(l=20, r=20, t=40, b=20),
+    )
+
+    return fig
 def safe(v, fmt=None):
     if v is None:
         return "—"
@@ -1570,7 +1587,7 @@ elif st.session_state.page == "acao":
         c1.metric("Retorno total", safe(retorno_total, pct))
         c2.metric("Retorno anualizado", safe(retorno_anual, pct))
 
-        st.line_chart(hist["Close"])
+        st.plotly_chart(grafico_preco_acao(hist, ticker),use_container_width=True)
 
     st.divider()
 
