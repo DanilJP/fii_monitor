@@ -12,6 +12,14 @@ import yfinance as yf
 
 st.markdown("""
 <style>
+div[data-testid="column"] {
+    padding: 0.25rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
 .grid-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
