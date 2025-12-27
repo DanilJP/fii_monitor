@@ -10,60 +10,7 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 
-st.markdown("""
-<style>
-/* ===== FUNDO DO APP ===== */
-.stApp {
-    background-color: #0b1f33;
-}
 
-/* ===== TÍTULOS ===== */
-h1, h2, h3, h4 {
-    color: #e8edf3;
-}
-
-/* ===== TEXTO ===== */
-p, span, label {
-    color: #c9d4e3;
-}
-
-/* ===== BOTÕES DO GRID (HOME) ===== */
-div[data-testid="column"] button {
-    height: 110px;
-    width: 100%;
-
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.2;
-
-    border-radius: 16px;
-
-    /* ESTILO ELEGANTE */
-    background-color: #0f253d;
-    color: #e8edf3;
-
-    border: 1px solid #2b5d8a;
-
-    padding: 14px;
-    text-align: center;
-
-    transition: all 0.2s ease-in-out;
-}
-
-/* Hover sutil */
-div[data-testid="column"] button:hover {
-    background-color: #12304d;
-    border-color: #4da3ff;
-    transform: translateY(-2px);
-}
-
-/* Clique */
-div[data-testid="column"] button:active {
-    transform: translateY(0px);
-    background-color: #0f253d;
-}
-</style>
-""", unsafe_allow_html=True)
 st.markdown("""
 <style>
 /* Botões da Home – estilo institucional */
