@@ -445,17 +445,10 @@ if st.session_state.page == "home":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.button("📊 Top 10 FIIs")
+        st.button("📊 Top 10", use_container_width=True)
 
     with col2:
-        st.button("💼 Carteira")
-
-    with col1:
-        st.button("⚖️ Comparador")
-
-    with col2:
-        st.button("🧠 Screener")
-    st.divider()
+        st.button("💼 Carteira", use_container_width=True)
 
     st.markdown("<div class='grid-buttons'>", unsafe_allow_html=True)
 
