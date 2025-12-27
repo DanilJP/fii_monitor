@@ -1374,15 +1374,6 @@ elif st.session_state.page == 'fii':
 
 elif st.session_state.page == "acao":
 
-    # Botão voltar
-    st.markdown(
-        "<a style='font-size:14px;color:#9bb0c9;text-decoration:none;'>← Voltar</a>",
-        unsafe_allow_html=True
-    )
-    if st.button(" ", key="voltar_home_acao"):
-        st.session_state.page = "home"
-        st.rerun()
-
     st.subheader("📈 Análise Fundamentalista de Ações")
     st.caption("Saúde financeira, crescimento e valorização no tempo")
     ticker = st.selectbox("Selecione a ação",["ITUB4.SA","BBAS3.SA","BBDC4.SA","SANB11.SA","BPAC11.SA",
