@@ -1464,16 +1464,8 @@ elif st.session_state.page == "acao":
     st.markdown("### 📈 Análise Fundamentalista de Ações")
     st.caption("Leitura objetiva focada em saúde, preço e crescimento")
 
-    ticker = st.selectbox(
-        "Selecione a ação",
-        [
-            "ITUB4.SA","BBAS3.SA","BBDC4.SA","VALE3.SA","PETR4.SA",
-            "WEGE3.SA","EGIE3.SA","TAEE11.SA","SUZB3.SA","TOTS3.SA",
-            "ABEV3.SA","LREN3.SA","RADL3.SA","FLRY3.SA","RAIL3.SA",
-            "PRIO3.SA","VIVT3.SA","KLBN11.SA","EMBR3.SA","SBSP3.SA"
-        ],
-        key="acao_individual"
-    )
+    ticker = st.selectbox("Selecione a ação",[
+"ITUB4.SA","BBAS3.SA","BBDC4.SA","VALE3.SA","PETR4.SA","WEGE3.SA","EGIE3.SA","TAEE11.SA","SUZB3.SA","TOTS3.SA","ABEV3.SA","LREN3.SA","RADL3.SA","FLRY3.SA","RAIL3.SA","PRIO3.SA","VIVT3.SA","KLBN11.SA","EMBR3.SA","SBSP3.SA"],key="acao_individual" )
 
     info, hist = carregar_dados_acao(ticker)
     m = extrair_metricas_acao(info)
