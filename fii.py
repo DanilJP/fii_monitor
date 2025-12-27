@@ -99,11 +99,6 @@ CACHE_HORA = 60 * 60
 #</style>
 #""", unsafe_allow_html=True)
 
-def voltar_home():
-    if st.button("← Voltar", key="voltar_home"):
-        st.session_state.page = "home"
-        st.rerun()
-
 st.markdown("""
 <style>
 div.stButton > button[kind="secondary"] {
@@ -120,9 +115,7 @@ div.stButton > button[kind="secondary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-if st.button("← Voltar", key="voltar_home", type="secondary"):
-    st.session_state.page = "home"
-    st.rerun()
+
 
 # =====================================================
 # HELPERS DE NAVEGAÇÃO
@@ -463,7 +456,9 @@ df_top10 = (
 # TABS
 # =====================================================
 
-voltar_home()
+if st.button("← Voltar", key="voltar_home", type="secondary"):
+    st.session_state.page = "home"
+    st.rerun()
 
 
 
