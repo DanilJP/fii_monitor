@@ -224,7 +224,7 @@ def carregar_dados():
 
 def filtrar_fiis_descontados_com_qualidade(df):
     return df[
-        (df["P/VP"].between(0.8, 1.0)) &
+        (df["P/VP"].between(0.85, 1.0)) &
         (df["DY (3M) Acumulado"] >= 2.4) &
         (df["DY (6M) Acumulado"] >= 4.8) &
         (df["DY (12M) Acumulado"] >= 9.6) &
@@ -428,8 +428,6 @@ fiis_achados = len(df_filtrados)
 df_top10 = (
     df_filtrados
     .sort_values("DY (12M) Acumulado", ascending=False)
-    .head(15)              # pega margem maior
-    .sort_values("P/VP")   # prioriza desconto
     .head(10)
 )
 # =====================================================
@@ -587,7 +585,7 @@ elif st.session_state.page == 'top10':
             Um FII **só aparece neste ranking** se atender **todos** os critérios abaixo:
 
             **📉 Preço**
-            - P/VP entre **0,80 e 1,00**
+            - P/VP entre **0,85 e 1,00**
 
             **💰 Dividendos**
             - DY 3 meses ≥ **2,4%**
