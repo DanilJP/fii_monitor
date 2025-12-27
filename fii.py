@@ -473,15 +473,30 @@ df_top10 = (
 # TABS
 # =====================================================
 
-if st.button("← Voltar", key="voltar_home", type="secondary"):
-    st.session_state.page = "home"
-    st.rerun()
-
-
 
 if st.session_state.page == "home":
-    st.subheader("📌 Refera")
-    st.caption("Onde decisões de investimento encontram fundamento")
+
+    st.markdown(
+        """
+        <div style="margin-bottom: 12px;">
+            <h2 style="margin-bottom:4px;">Refera</h2>
+            <p style="margin-top:0; font-size:15px; color:#c9d4e3;">
+                Onde decisões de investimento encontram fundamento
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        """
+        <p style="font-size:14px; line-height:1.6; color:#b8c4d6; margin-bottom:18px;">
+        O Refera centraliza dados, critérios e análises quantitativas para apoiar
+        decisões mais claras em fundos imobiliários e investimentos de longo prazo.
+        </p>
+        """,
+        unsafe_allow_html=True
+    )
 
     c1, c2 = st.columns(2)
 
@@ -1259,6 +1274,9 @@ elif st.session_state.page == 'fii':
         unsafe_allow_html=True
     )
 
+if st.button("← Voltar", key="voltar_home", type="secondary"):
+    st.session_state.page = "home"
+    st.rerun()
 
 
 
