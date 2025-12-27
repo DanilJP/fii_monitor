@@ -81,33 +81,6 @@ CACHE_HORA = 60 * 60
 # =====================================================
 # ESTILO GLOBAL
 # =====================================================
-#st.markdown("""
-#<style>
-#button {
-#    height: 120px;
-#    border-radius: 16px;
-#    font-size: 16px;
-#    white-space: pre-line;
-#}
-#</style>
-#""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-div.stButton > button[kind="secondary"] {
-    background: transparent;
-    border: none;
-    color: #8aa4bf;
-    font-size: 14px;
-    padding: 0;
-}
-div.stButton > button[kind="secondary"]:hover {
-    color: #c9d7e6;
-    text-decoration: underline;
-}
-</style>
-""", unsafe_allow_html=True)
-
 
 
 # =====================================================
