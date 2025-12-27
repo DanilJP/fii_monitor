@@ -1390,11 +1390,40 @@ elif st.session_state.page == "acao":
     st.subheader("📈 Análise Fundamentalista de Ações")
     st.caption("Saúde financeira, crescimento e valorização no tempo")
 
-    ticker = st.selectbox(
-        "Selecione a ação",
-        ["ITUB4.SA", "VALE3.SA", "PETR4.SA", "WEGE3.SA"],
-        key="acao_individual"
-    )
+ticker = st.selectbox(
+    "Selecione a ação",
+    [
+        # Bancos / Financeiro
+        "ITUB4.SA", "ITUB3.SA", "BBDC4.SA", "BBDC3.SA", "BBAS3.SA",
+        "SANB11.SA", "BPAC11.SA", "BPAC3.SA", "BPAC5.SA",
+
+        # Energia / Utilities
+        "TAEE11.SA", "TAEE4.SA", "EGIE3.SA", "ENBR3.SA", "CPLE6.SA",
+        "CMIG4.SA", "TRPL4.SA",
+
+        # Commodities / Indústria pesada
+        "VALE3.SA", "PETR4.SA", "PETR3.SA", "GGBR4.SA", "CSNA3.SA",
+        "USIM5.SA",
+
+        # Consumo / Varejo
+        "ABEV3.SA", "MGLU3.SA", "LREN3.SA", "ASAI3.SA",
+        "HYPE3.SA", "RADL3.SA",
+
+        # Tecnologia / Indústria de qualidade
+        "WEGE3.SA", "TOTS3.SA", "EMBR3.SA",
+
+        # Saúde
+        "FLRY3.SA", "HAPV3.SA", "QUAL3.SA", "RDOR3.SA",
+
+        # Infraestrutura / Logística
+        "RAIL3.SA", "ECOR3.SA", "CCRO3.SA", "SBSP3.SA",
+
+        # Outros setores relevantes
+        "PRIO3.SA", "VIVT3.SA", "TIMS3.SA", "KLBN11.SA",
+        "SUZB3.SA", "BRFS3.SA"
+    ],
+    key="acao_individual"
+)
 
     info, hist = carregar_dados_acao(ticker)
     metricas = extrair_metricas_acao(info)
@@ -1434,6 +1463,59 @@ elif st.session_state.page == "acao":
     c1, c2 = st.columns(2)
     c1.metric("Crescimento Receita", f"{metricas['Crescimento Receita (%)']:.1f}%")
     c2.metric("Crescimento Lucro", f"{metricas['Crescimento Lucro (%)']:.1f}%")
+if st.session_state.page == "acao":
+
+    st.markdown("### 📈 Análise Fundamentalista de Ações")
+    st.caption("Leitura objetiva focada em saúde, preço e crescimento")
+
+    ticker = st.selectbox(
+        "Selecione a ação",
+        [
+            "ITUB4.SA","BBAS3.SA","BBDC4.SA","VALE3.SA","PETR4.SA",
+            "WEGE3.SA","EGIE3.SA","TAEE11.SA","SUZB3.SA","TOTS3.SA",
+            "ABEV3.SA","LREN3.SA","RADL3.SA","FLRY3.SA","RAIL3.SA",
+            "PRIO3.SA","VIVT3.SA","KLBN11.SA","EMBR3.SA","SBSP3.SA"
+        ],
+        key="acao_individual"
+    )
+
+    info, hist = carregar_dados_acao(ticker)
+    m = extrair_metricas_acao(info)
+
+    st.divider()
+
+    # =====================
+    # VISÃO RÁPIDA
+    # =====================
+    st.markdown("### 📌 Visão rápida")
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Preço", f"R$ {m['Preço Atual']:.2f}" if m["Preço Atual"] else "—")
+    c2.metric("P/L", f"{m['P/L']:.1f}" if m["P/L"] else "—")
+    c3.metric("P/VP", f"{m['P/VP']:.2f}" if m["P/VP"] else "—")
+    c4.metric("ROE", f"{m['ROE (%)']:.1f}%" if m["ROE (%)"] else "—")
+
+    st.divider()
+
+    # =====================
+    # FUNDAMENTOS
+    # =====================
+    st.markdown("### 🧱 Fundamentação")
+
+    for linha in leitura_fundamental_acao(m):
+        st.markdown(f"- {linha}")
+
+    st.divider()
+
+    # =====================
+    # CRESCIMENTO & PORTE
+    # =====================
+    st.markdown("### 🚀 Crescimento e porte")
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Crescimento Receita", f"{m['Crescimento Receita (%)']:.1f}%")
+    c2.metric("Margem Líquida", f"{m['Margem Líquida (%)']:.1f}%")
+    c3.metric("Market Cap", f"R$ {m['Market Cap (R$ bi)']:.1f} bi")
 
     st.divider()
 
@@ -1444,22 +1526,23 @@ elif st.session_state.page == "acao":
 
     retorno_total, retorno_anual = backtest_valorizacao(hist)
 
-    if retorno_total is not None:
+    if retorno_total:
         c1, c2 = st.columns(2)
         c1.metric("Retorno Total", f"{retorno_total:.1f}%")
         c2.metric("Retorno Anualizado", f"{retorno_anual:.1f}%")
+
         st.line_chart(hist["Close"])
-    else:
-        st.info("Histórico insuficiente.")
 
     st.divider()
 
     st.info(
-        "Leitura quantitativa baseada em fundamentos e histórico. "
+        "Esta análise é quantitativa e baseada em dados públicos. "
         "Não constitui recomendação de investimento."
     )
 
-
+    if st.button("← Voltar"):
+        st.session_state.page = "home"
+        st.rerun()
 
 
 
