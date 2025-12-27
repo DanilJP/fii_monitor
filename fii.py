@@ -188,6 +188,64 @@ def comparar_com_selic(dy):
 def calcular_rendimento_mensal(dy12):
     return ((1 + dy12 / 100) ** (1 / 12) - 1) * 100
 
+def leitura_valor_acao(m):
+    leitura = []
+
+    pl = m.get("P/L")
+    pvp = m.get("P/VP")
+    roe = m.get("ROE (%)")
+    crescimento = m.get("Crescimento Lucro (%)")
+    divida = m.get("Dívida/Patrimônio")
+
+    # P/L
+    if pl:
+        if pl < 10:
+            leitura.append("P/L baixo para o mercado — pode indicar desconto ou risco.")
+        elif pl < 18:
+            leitura.append("P/L em faixa razoável para empresa madura.")
+        else:
+            leitura.append("P/L elevado — mercado precifica crescimento.")
+
+    # P/VP
+    if pvp:
+        if pvp < 1:
+            leitura.append("P/VP abaixo de 1 — ativo pode estar descontado.")
+        elif pvp < 2:
+            leitura.append("P/VP compatível com empresa saudável.")
+        else:
+            leitura.append("P/VP elevado — qualidade e retorno já estão no preço.")
+
+    # ROE
+    if roe:
+        if roe >= 15:
+            leitura.append("ROE elevado — empresa eficiente na geração de retorno.")
+        elif roe >= 10:
+            leitura.append("ROE aceitável para empresa estável.")
+        else:
+            leitura.append("ROE baixo — atenção à eficiência operacional.")
+
+    # Crescimento
+    if crescimento:
+        if crescimento >= 10:
+            leitura.append("Lucro em crescimento consistente.")
+        elif crescimento > 0:
+            leitura.append("Crescimento modesto de lucros.")
+        else:
+            leitura.append("Lucro em queda — ponto de atenção.")
+
+    # Dívida
+    if divida:
+        if divida < 1:
+            leitura.append("Estrutura de capital saudável.")
+        elif divida < 2:
+            leitura.append("Alavancagem moderada.")
+        else:
+            leitura.append("Alavancagem elevada — exige atenção.")
+
+    if not leitura:
+        leitura.append("Dados insuficientes para uma leitura clara.")
+
+    return leitura
 
 def analisar_fii(row):
     pontos = []
