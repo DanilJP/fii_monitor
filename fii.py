@@ -10,6 +10,7 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 
+
 st.markdown("""
 <style>
 /* Container do botão */
