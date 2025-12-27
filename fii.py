@@ -161,6 +161,19 @@ def card(titulo, descricao, page_key):
         st.session_state.page = page_key
         st.rerun()
 
+def safe(v, fmt=None):
+    if v is None:
+        return "—"
+    try:
+        return fmt(v) if fmt else v
+    except:
+        return "—"
+
+def pct(v):
+    return f"{v:.1f}%"
+
+def brl(v):
+    return f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 # =====================================================
 # FUNÇÕES DE NEGÓCIO — FIIs
 # =====================================================
@@ -1393,19 +1406,34 @@ elif st.session_state.page == 'fii':
 
 elif st.session_state.page == "acao":
     scroll_to_top()
-    st.subheader("📈 Análise Fundamentalista de Ações")
-    st.caption("Saúde financeira, crescimento e valorização no tempo")
-    ticker = st.selectbox("Selecione a ação",["ITUB4.SA","BBAS3.SA","BBDC4.SA","SANB11.SA","BPAC11.SA",
-    "EGIE3.SA","TAEE11.SA","ELET3.SA","EQTL3.SA","CPFE3.SA",
-    "PETR4.SA","PRIO3.SA","VALE3.SA","SUZB3.SA","KLBN11.SA",
-    "WEGE3.SA","EMBR3.SA","RAIL3.SA","RENT3.SA","CCRO3.SA",
-    "ABEV3.SA","LREN3.SA","ASAI3.SA","MGLU3.SA","ARZZ3.SA",
-    "RADL3.SA","FLRY3.SA","HAPV3.SA","RDOR3.SA",
-    "VIVT3.SA","TIMS3.SA","TOTS3.SA","LWSA3.SA",
-    "SBSP3.SA","CSMG3.SA","SAPR11.SA"],key="acao_individual" )
 
-    info, hist = carregar_dados_acao(ticker)
-    metricas = extrair_metricas_acao(info)
+    st.subheader("📈 Análise Fundamentalista de Ações")
+    st.caption("Saúde financeira, qualidade e crescimento no tempo")
+
+    ticker = st.selectbox(
+        "Selecione a ação",
+        [
+            "ITUB4.SA","BBAS3.SA","BBDC4.SA","SANB11.SA","BPAC11.SA",
+            "EGIE3.SA","TAEE11.SA","ELET3.SA","EQTL3.SA","CPFE3.SA",
+            "PETR4.SA","PRIO3.SA","VALE3.SA","SUZB3.SA","KLBN11.SA",
+            "WEGE3.SA","EMBR3.SA","RAIL3.SA","RENT3.SA","CCRO3.SA",
+            "ABEV3.SA","LREN3.SA","ASAI3.SA","MGLU3.SA","ARZZ3.SA",
+            "RADL3.SA","FLRY3.SA","HAPV3.SA","RDOR3.SA",
+            "VIVT3.SA","TIMS3.SA","TOTS3.SA","LWSA3.SA",
+            "SBSP3.SA","CSMG3.SA","SAPR11.SA"
+        ],
+        key="acao_individual"
+    )
+
+    # =====================
+    # CARREGA DADOS (COM TRY)
+    # =====================
+    try:
+        info, hist = carregar_dados_acao(ticker)
+        m = extrair_metricas_acao(info)
+    except Exception as e:
+        st.error("Erro ao carregar dados da ação.")
+        st.stop()
 
     # =====================
     # VISÃO RÁPIDA
@@ -1413,24 +1441,39 @@ elif st.session_state.page == "acao":
     st.markdown("### 📌 Visão rápida")
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Preço", f"R$ {metricas['Preço Atual']:.2f}" if metricas["Preço Atual"] else "—")
-    c2.metric("P/L", f"{metricas['P/L']:.1f}" if metricas["P/L"] else "—")
-    c3.metric("P/VP", f"{metricas['P/VP']:.2f}" if metricas["P/VP"] else "—")
-    c4.metric("ROE", f"{metricas['ROE (%)']:.1f}%" if metricas["ROE (%)"] else "—")
+    c1.metric("Preço", safe(m.get("Preço Atual"), brl))
+    c2.metric("P/L", safe(m.get("P/L"), lambda x: f"{x:.1f}"))
+    c3.metric("P/VP", safe(m.get("P/VP"), lambda x: f"{x:.2f}"))
+    c4.metric("ROE", safe(m.get("ROE (%)"), pct))
 
     st.divider()
 
     # =====================
-    # SAÚDE
+    # SAÚDE FINANCEIRA
     # =====================
     st.markdown("### 🧱 Saúde da empresa")
 
-    st.metric("Classificação Refera", classificar_saude(metricas))
+    st.metric(
+        "Classificação Refera",
+        classificar_saude(m)
+    )
 
-    st.markdown(f"""
-    - **Margem Líquida:** {metricas['Margem Líquida (%)']:.1f}%  
-    - **ROA:** {metricas['ROA (%)']:.1f}%  
-    """)
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Margem Líquida", safe(m.get("Margem Líquida (%)"), pct))
+    c2.metric("ROA", safe(m.get("ROA (%)"), pct))
+    c3.metric("Dívida / Patrimônio", safe(m.get("Dívida/Patrimônio"), lambda x: f"{x:.2f}"))
+
+    st.divider()
+
+    # =====================
+    # QUALIDADE & EFICIÊNCIA
+    # =====================
+    st.markdown("### 🧠 Qualidade operacional")
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("ROIC", safe(m.get("ROIC (%)"), pct))
+    c2.metric("Margem Operacional", safe(m.get("Margem Operacional (%)"), pct))
+    c3.metric("Free Cash Flow", safe(m.get("FCF (R$ bi)"), lambda x: f"R$ {x:.1f} bi"))
 
     st.divider()
 
@@ -1439,10 +1482,44 @@ elif st.session_state.page == "acao":
     # =====================
     st.markdown("### 🚀 Crescimento")
 
-    c1, c2 = st.columns(2)
-    c1.metric("Crescimento Receita", f"{metricas['Crescimento Receita (%)']:.1f}%")
-    c2.metric("Crescimento Lucro", f"{metricas['Crescimento Lucro (%)']:.1f}%")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Receita (5a)", safe(m.get("Crescimento Receita (%)"), pct))
+    c2.metric("Lucro (5a)", safe(m.get("Crescimento Lucro (%)"), pct))
+    c3.metric("EPS (5a)", safe(m.get("Crescimento EPS (%)"), pct))
 
+    st.divider()
+
+    # =====================
+    # VALUATION SIMPLES
+    # =====================
+    st.markdown("### 💰 Leitura de valuation")
+
+    leitura = leitura_valor_acao(m)
+    for l in leitura:
+        st.markdown(f"- {l}")
+
+    st.divider()
+
+    # =====================
+    # BACKTEST
+    # =====================
+    st.markdown("### ⏱️ Valorização histórica")
+
+    if hist is not None and not hist.empty:
+        retorno_total, retorno_anual = backtest_valorizacao(hist)
+
+        c1, c2 = st.columns(2)
+        c1.metric("Retorno total", safe(retorno_total, pct))
+        c2.metric("Retorno anualizado", safe(retorno_anual, pct))
+
+        st.line_chart(hist["Close"])
+
+    st.divider()
+
+    st.info(
+        "Análise quantitativa baseada em dados públicos. "
+        "Não constitui recomendação de investimento."
+    )
 
     
 if st.button("← Voltar", key="voltar_home", type="secondary"):
