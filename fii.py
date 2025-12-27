@@ -12,38 +12,31 @@ import yfinance as yf
 
 st.markdown("""
 <style>
-/* Container do botão */
-div.stButton > button {
+/* SOMENTE botões do grid da Home */
+div[data-testid="column"] > div > div > div.stButton > button {
     height: 110px;
     width: 100%;
     font-size: 16px;
     font-weight: 600;
     border-radius: 16px;
 
-    /* Cores */
     background: linear-gradient(180deg, #0b1f33 0%, #081726 100%);
     color: #e8edf3;
 
-    /* Borda elegante */
     border: 1px solid #123a5f;
-
-    /* Espaçamento e alinhamento */
     padding: 12px 14px;
     text-align: center;
 
-    /* Transição suave */
     transition: all 0.25s ease-in-out;
 }
 
-/* Hover */
-div.stButton > button:hover {
+div[data-testid="column"] > div > div > div.stButton > button:hover {
     background: linear-gradient(180deg, #102a44 0%, #0b1f33 100%);
     border-color: #1f5c8f;
     transform: translateY(-2px);
 }
 
-/* Clique */
-div.stButton > button:active {
+div[data-testid="column"] > div > div > div.stButton > button:active {
     transform: translateY(0px);
     background: #081726;
 }
