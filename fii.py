@@ -1372,10 +1372,6 @@ elif st.session_state.page == 'fii':
         unsafe_allow_html=True
     )
 
-if st.button("← Voltar", key="voltar_home", type="secondary"):
-    st.session_state.page = "home"
-    st.rerun()
-
 elif st.session_state.page == "acao":
 
     # Botão voltar
@@ -1390,7 +1386,7 @@ elif st.session_state.page == "acao":
     st.subheader("📈 Análise Fundamentalista de Ações")
     st.caption("Saúde financeira, crescimento e valorização no tempo")
 
-ticker = st.selectbox(
+ ticker = st.selectbox(
     "Selecione a ação",
     [
         # Bancos / Financeiro
@@ -1540,10 +1536,10 @@ elif st.session_state.page == "acao":
         "Não constitui recomendação de investimento."
     )
 
-    if st.button("← Voltar"):
-        st.session_state.page = "home"
-        st.rerun()
-
+    
+if st.button("← Voltar", key="voltar_home", type="secondary"):
+    st.session_state.page = "home"
+    st.rerun()
 
 
 
