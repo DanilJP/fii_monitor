@@ -225,9 +225,9 @@ def carregar_dados():
 def filtrar_fiis_descontados_com_qualidade(df):
     return df[
         (df["P/VP"].between(0.85, 1.0)) &
-        (df["DY (3M) Acumulado"] >= 2.4) &
-        (df["DY (6M) Acumulado"] >= 4.8) &
-        (df["DY (12M) Acumulado"] >= 9.6) &
+        (df["DY (3M) Acumulado"] >= 3) &
+        (df["DY (6M) Acumulado"] >= 6) &
+        (df["DY (12M) Acumulado"] >= 12) &
         (df["Liquidez Diária (milhões R$)"] >= 1) &
         (df["Patrimônio Líquido (milhões R$)"] >= 500) &
         (df["Num. Cotistas (milhares)"] >= 10)
@@ -588,9 +588,9 @@ elif st.session_state.page == 'top10':
             - P/VP entre **0,85 e 1,00**
 
             **💰 Dividendos**
-            - DY 3 meses ≥ **2,4%**
-            - DY 6 meses ≥ **4,8%**
-            - DY 12 meses ≥ **9,6%**
+            - DY 3 meses ≥ **3,0%**
+            - DY 6 meses ≥ **6,0%**
+            - DY 12 meses ≥ **12,0%**
 
             **📊 Liquidez e porte**
             - Liquidez diária ≥ **R$ 1 milhão**
