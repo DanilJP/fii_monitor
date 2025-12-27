@@ -100,22 +100,30 @@ CACHE_HORA = 60 * 60
 #""", unsafe_allow_html=True)
 
 def voltar_home():
-    st.markdown(
-        """
-        <a href="?page=home"
-           style="
-           font-size:14px;
-           color:#666;
-           text-decoration:none;
-           ">
-           ← Voltar
-        </a>
-        """,
-        unsafe_allow_html=True
-    )
-
-    if st.query_params.get("page") == ["home"]:
+    if st.button("← Voltar", key="voltar_home"):
         st.session_state.page = "home"
+        st.rerun()
+
+st.markdown("""
+<style>
+div.stButton > button[kind="secondary"] {
+    background: transparent;
+    border: none;
+    color: #8aa4bf;
+    font-size: 14px;
+    padding: 0;
+}
+div.stButton > button[kind="secondary"]:hover {
+    color: #c9d7e6;
+    text-decoration: underline;
+}
+</style>
+""", unsafe_allow_html=True)
+
+if st.button("← Voltar", key="voltar_home", type="secondary"):
+    st.session_state.page = "home"
+    st.rerun()
+
 # =====================================================
 # HELPERS DE NAVEGAÇÃO
 # =====================================================
