@@ -23,19 +23,28 @@ st.markdown("""
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 14px;
+    margin-top: 16px;
 }
 .grid button {
     width: 100%;
-    padding: 16px;
-    font-size: 16px;
-    border-radius: 12px;
+    padding: 18px 12px;
+    font-size: 15px;
+    border-radius: 14px;
     border: none;
     background-color: #0f172a;
     color: white;
+    font-weight: 600;
+}
+.grid button:hover {
+    background-color: #1e293b;
+}
+.back-btn {
+    margin-bottom: 12px;
 }
 </style>
 """, unsafe_allow_html=True)
+
 # =====================================================
 # CONFIG STREAMLIT
 # =====================================================
@@ -444,42 +453,46 @@ voltar_home()
 
 
 if st.session_state.page == "home":
-    st.title("📍 FIIs Monitor")
-    st.caption("Onde decisões de investimento encontram fundamentos.")
+    st.subheader("📌 Refera")
+    st.caption("Onde decisões de investimento encontram fundamento")
 
     st.markdown("""
     <div class="grid">
-        <form action="?page=rankings">
-            <button type="submit">📊 Rankings</button>
+        <form action="#" method="post">
+            <button name="rankings">📊 Rankings</button>
         </form>
-        <form action="?page=analise">
-            <button type="submit">🧠 Análise</button>
+        <form action="#" method="post">
+            <button name="analise_fii">🔎 Análise de FII</button>
         </form>
-        <form action="?page=comparador">
-            <button type="submit">⚖️ Comparador</button>
+        <form action="#" method="post">
+            <button name="comparador">⚖️ Comparador</button>
         </form>
-        <form action="?page=carteira">
-            <button type="submit">💼 Carteira</button>
+        <form action="#" method="post">
+            <button name="screener">🧠 Screener</button>
+        </form>
+        <form action="#" method="post">
+            <button name="reinvestimento">🔁 Reinvestimento</button>
+        </form>
+        <form action="#" method="post">
+            <button name="carteira">💼 Carteira</button>
+        </form>
+        <form action="#" method="post">
+            <button name="noticias">📰 Notícias</button>
+        </form>
+        <form action="#" method="post">
+            <button name="acoes">📈 Ações</button>
         </form>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='grid-buttons'>", unsafe_allow_html=True)
-
-    grid_button("📊 Top 10\nFIIs selecionados", "top10")
-    grid_button("🏦 Grandes FIIs\nFundos robustos", "grandes")
-    grid_button("💸 FIIs de Entrada\nCotas acessíveis", "entrada")
-    grid_button("🧠 Screener\nFiltros avançados", "screener")
-
-    grid_button("⚖️ Comparador\nFII vs FII", "comparador")
-    grid_button("📰 Notícias\nContexto recente", "noticias")
-    grid_button("🔁 Reinvestimento\nRenda automática", "reinvest")
-    grid_button("💼 Carteira\nSimule sua renda", "carteira")
-
-    grid_button("🔎 FII Individual\nAnálise profunda", "fii")
-    grid_button("📈 Ações\nFundamentalista", "acoes")
-
-    st.markdown("</div>", unsafe_allow_html=True)
+    # captura do clique
+    for key in [
+        "rankings","analise_fii","comparador","screener",
+        "reinvestimento","carteira","noticias","acoes"
+    ]:
+        if key in st.session_state:
+            st.session_state.page = key
+            st.rerun()
 # =====================================================
 # TAB — MÉTRICAS
 # =====================================================
