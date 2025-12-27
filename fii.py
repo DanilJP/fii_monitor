@@ -442,12 +442,12 @@ if st.session_state.page == "home":
     st.title("📍 FIIs Monitor")
     st.caption("Onde decisões de investimento encontram fundamentos.")
 
-    col1, col2 = st.columns(2)
+    ex1, ex2 = st.columns(2)
 
-    with col1:
+    with ex1:
         st.button("📊 Top 10", use_container_width=True)
 
-    with col2:
+    with ex2:
         st.button("💼 Carteira", use_container_width=True)
 
     st.markdown("<div class='grid-buttons'>", unsafe_allow_html=True)
