@@ -1386,7 +1386,7 @@ elif st.session_state.page == "acao":
     st.subheader("📈 Análise Fundamentalista de Ações")
     st.caption("Saúde financeira, crescimento e valorização no tempo")
 
- ticker = st.selectbox(
+    ticker = st.selectbox(
     "Selecione a ação",
     [
         # Bancos / Financeiro
@@ -1419,7 +1419,7 @@ elif st.session_state.page == "acao":
         "SUZB3.SA", "BRFS3.SA"
     ],
     key="acao_individual"
-)
+    )
 
     info, hist = carregar_dados_acao(ticker)
     metricas = extrair_metricas_acao(info)
