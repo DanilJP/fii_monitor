@@ -1422,7 +1422,6 @@ elif st.session_state.page == "acao":
     st.markdown(f"""
     - **Margem Líquida:** {metricas['Margem Líquida (%)']:.1f}%  
     - **ROA:** {metricas['ROA (%)']:.1f}%  
-    - **Dívida / Patrimônio:** {metricas['Dívida/Patrimônio']:.2f}  
     """)
 
     st.divider()
