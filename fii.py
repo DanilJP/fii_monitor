@@ -1459,74 +1459,7 @@ elif st.session_state.page == "acao":
     c1, c2 = st.columns(2)
     c1.metric("Crescimento Receita", f"{metricas['Crescimento Receita (%)']:.1f}%")
     c2.metric("Crescimento Lucro", f"{metricas['Crescimento Lucro (%)']:.1f}%")
-elif st.session_state.page == "acao":
 
-    st.markdown("### 📈 Análise Fundamentalista de Ações")
-    st.caption("Leitura objetiva focada em saúde, preço e crescimento")
-
-    ticker = st.selectbox("Selecione a ação",[
-"ITUB4.SA","BBAS3.SA","BBDC4.SA","VALE3.SA","PETR4.SA","WEGE3.SA","EGIE3.SA","TAEE11.SA","SUZB3.SA","TOTS3.SA","ABEV3.SA","LREN3.SA","RADL3.SA","FLRY3.SA","RAIL3.SA","PRIO3.SA","VIVT3.SA","KLBN11.SA","EMBR3.SA","SBSP3.SA"],key="acao_individual" )
-
-    info, hist = carregar_dados_acao(ticker)
-    m = extrair_metricas_acao(info)
-
-    st.divider()
-
-    # =====================
-    # VISÃO RÁPIDA
-    # =====================
-    st.markdown("### 📌 Visão rápida")
-
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Preço", f"R$ {m['Preço Atual']:.2f}" if m["Preço Atual"] else "—")
-    c2.metric("P/L", f"{m['P/L']:.1f}" if m["P/L"] else "—")
-    c3.metric("P/VP", f"{m['P/VP']:.2f}" if m["P/VP"] else "—")
-    c4.metric("ROE", f"{m['ROE (%)']:.1f}%" if m["ROE (%)"] else "—")
-
-    st.divider()
-
-    # =====================
-    # FUNDAMENTOS
-    # =====================
-    st.markdown("### 🧱 Fundamentação")
-
-    for linha in leitura_fundamental_acao(m):
-        st.markdown(f"- {linha}")
-
-    st.divider()
-
-    # =====================
-    # CRESCIMENTO & PORTE
-    # =====================
-    st.markdown("### 🚀 Crescimento e porte")
-
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Crescimento Receita", f"{m['Crescimento Receita (%)']:.1f}%")
-    c2.metric("Margem Líquida", f"{m['Margem Líquida (%)']:.1f}%")
-    c3.metric("Market Cap", f"R$ {m['Market Cap (R$ bi)']:.1f} bi")
-
-    st.divider()
-
-    # =====================
-    # BACKTEST
-    # =====================
-    st.markdown("### ⏱️ Valorização histórica (5 anos)")
-
-    retorno_total, retorno_anual = backtest_valorizacao(hist)
-
-    if retorno_total:
-        c1, c2 = st.columns(2)
-        c1.metric("Retorno Total", f"{retorno_total:.1f}%")
-        c2.metric("Retorno Anualizado", f"{retorno_anual:.1f}%")
-
-        st.line_chart(hist["Close"])
-
-    st.divider()
-
-    st.info(
-        "Esta análise é quantitativa e baseada em dados públicos. "
-        "Não constitui recomendação de investimento."
-    )
 
     
 if st.button("← Voltar", key="voltar_home", type="secondary"):
