@@ -67,16 +67,16 @@ CACHE_HORA = 60 * 60
 # =====================================================
 # ESTILO GLOBAL
 # =====================================================
-st.markdown("""
-<style>
-button {
-    height: 120px;
-    border-radius: 16px;
-    font-size: 16px;
-    white-space: pre-line;
-}
-</style>
-""", unsafe_allow_html=True)
+#st.markdown("""
+#<style>
+#button {
+#    height: 120px;
+#    border-radius: 16px;
+#    font-size: 16px;
+#    white-space: pre-line;
+#}
+#</style>
+#""", unsafe_allow_html=True)
 
 def voltar_home():
     st.markdown(
