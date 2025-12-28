@@ -184,10 +184,6 @@ CACHE_HORA = 60 * 60
 # =====================================================
 # HELPERS DE NAVEGAÇÃO
 # =====================================================
-def botao_voltar():
-    if st.button("← Voltar"):
-        st.session_state.page = "home"
-        st.rerun()
 
 def scroll_to_top():
     st.markdown(
