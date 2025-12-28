@@ -229,63 +229,109 @@ def home_card(titulo, descricao, page_key):
 
 
 
-def render_home_grid(cards):
-    height = 140 * ((len(cards) + 1) // 2)
-
-    html = f"""
+def render_home():
+    html = """
     <style>
-    .home-grid {{
+    .home-section { margin-bottom: 28px; }
+
+    .home-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
-        width: 100%;
-    }}
+    }
 
-    .home-card {{
+    .home-card {
         background-color: #0b1f33;
         border: 1px solid rgba(120,160,200,0.25);
         border-radius: 16px;
         padding: 18px 14px;
         cursor: pointer;
         transition: all 0.2s ease;
-    }}
+    }
 
-    .home-card:hover {{
+    .home-card:hover {
         background-color: #102a44;
         border-color: rgba(140,180,220,0.35);
         transform: translateY(-2px);
-    }}
+    }
 
-    .home-card-title {{
+    .home-card-title {
         font-size: 15px;
         font-weight: 600;
         color: #e6edf3;
         margin-bottom: 6px;
         text-align: center;
-    }}
+    }
 
-    .home-card-desc {{
+    .home-card-desc {
         font-size: 13px;
         color: #b8c4d6;
         line-height: 1.4;
         text-align: center;
-    }}
+    }
     </style>
 
-    <div class="home-grid">
+    <div class="home-section">
+        <h3>📊 Rankings e Descoberta</h3>
+        <div class="home-grid">
+            <div class="home-card" onclick="location.href='?page=top10'">
+                <div class="home-card-title">📊 Rankings</div>
+                <div class="home-card-desc">Top FIIs por critérios</div>
+            </div>
+            <div class="home-card" onclick="location.href='?page=grandes'">
+                <div class="home-card-title">🏦 Grandes FIIs</div>
+                <div class="home-card-desc">Maior patrimônio do mercado</div>
+            </div>
+            <div class="home-card" onclick="location.href='?page=entrada'">
+                <div class="home-card-title">💸 FIIs de Entrada</div>
+                <div class="home-card-desc">Cotas acessíveis e liquidez</div>
+            </div>
+            <div class="home-card" onclick="location.href='?page=screener'">
+                <div class="home-card-title">🧠 Screener</div>
+                <div class="home-card-desc">Filtros personalizados</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="home-section">
+        <h3>🧭 Análise e Decisão</h3>
+        <div class="home-grid">
+            <div class="home-card" onclick="location.href='?page=fii'">
+                <div class="home-card-title">🔎 FII Individual</div>
+                <div class="home-card-desc">Análise completa do fundo</div>
+            </div>
+            <div class="home-card" onclick="location.href='?page=comparador'">
+                <div class="home-card-title">⚖️ Comparador</div>
+                <div class="home-card-desc">Comparação lado a lado</div>
+            </div>
+            <div class="home-card" onclick="location.href='?page=acao'">
+                <div class="home-card-title">📈 Ações</div>
+                <div class="home-card-desc">Análise fundamentalista</div>
+            </div>
+            <div class="home-card" onclick="location.href='?page=noticias'">
+                <div class="home-card-title">📰 Notícias</div>
+                <div class="home-card-desc">Contexto recente</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="home-section">
+        <h3>🔁 Planejamento</h3>
+        <div class="home-grid">
+            <div class="home-card" onclick="location.href='?page=reinvestimento'">
+                <div class="home-card-title">🔁 Reinvestimento</div>
+                <div class="home-card-desc">Simulador de dividendos</div>
+            </div>
+            <div class="home-card" onclick="location.href='?page=carteira'">
+                <div class="home-card-title">💼 Carteira</div>
+                <div class="home-card-desc">Simulação da carteira</div>
+            </div>
+        </div>
+    </div>
     """
 
-    for titulo, desc, page in cards:
-        html += f"""
-        <div class="home-card" onclick="window.location.href='?page={page}'">
-            <div class="home-card-title">{titulo}</div>
-            <div class="home-card-desc">{desc}</div>
-        </div>
-        """
+    components.html(html, height=900, scrolling=False)
 
-    html += "</div>"
-
-    components.html(html, height=height, scrolling=False)
 
 
 
@@ -764,6 +810,7 @@ def leitura_valor_acao(metricas):
 
 if st.session_state.page == "home":
     scroll_to_top()
+    home_placeholder.empty()
 
     with home_placeholder:
 
