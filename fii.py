@@ -1563,7 +1563,7 @@ elif st.session_state.page == "acao":
     )
 
     
-if st.button("← Voltar", key="voltar_home", type="secondary"):
+if st.button("← Voltar", key="voltar_home"):
     st.session_state.page = "home"
     st.rerun()
 
