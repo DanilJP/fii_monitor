@@ -2,3 +2,5 @@ feedparser
 beautifulsoup4
 requests
 streamlit>=1.30.0
+yfinance
+plotly
