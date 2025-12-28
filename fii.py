@@ -477,6 +477,100 @@ def calcular_rendimento_mensal(dy_anual):
 
     return ((1 + dy_anual / 100) ** (1 / 12) - 1) * 100
 
+# =====================================================
+# SCORE REFERA — AÇÕES
+# =====================================================
+def score_refera_acao(m):
+    score = 0
+    criterios = []
+
+    # QUALIDADE
+    if m.get("ROE (%)") and m["ROE (%)"] >= 15:
+        score += 2; criterios.append(("ROE saudável", True))
+    else:
+        criterios.append(("ROE saudável", False))
+
+    if m.get("Margem Líquida (%)") and m["Margem Líquida (%)"] >= 10:
+        score += 2; criterios.append(("Margem líquida sólida", True))
+    else:
+        criterios.append(("Margem líquida sólida", False))
+
+    if m.get("Dívida/Patrimônio") is not None and m["Dívida/Patrimônio"] < 1.5:
+        score += 1; criterios.append(("Endividamento controlado", True))
+    else:
+        criterios.append(("Endividamento controlado", False))
+
+    # CRESCIMENTO
+    if m.get("Crescimento Receita (%)") and m["Crescimento Receita (%)"] > 0:
+        score += 1; criterios.append(("Receita em crescimento", True))
+    else:
+        criterios.append(("Receita em crescimento", False))
+
+    if m.get("Crescimento Lucro (%)") and m["Crescimento Lucro (%)"] > 0:
+        score += 2; criterios.append(("Lucro em crescimento", True))
+    else:
+        criterios.append(("Lucro em crescimento", False))
+
+    # VALUATION
+    if m.get("P/L") and m["P/L"] <= 15:
+        score += 1; criterios.append(("P/L razoável", True))
+    else:
+        criterios.append(("P/L razoável", False))
+
+    if m.get("P/VP") and m["P/VP"] <= 2:
+        score += 1; criterios.append(("P/VP saudável", True))
+    else:
+        criterios.append(("P/VP saudável", False))
+
+    return score, criterios
+
+
+def classificacao_score(score):
+    if score >= 8:
+        return "🟢 Forte"
+    elif score >= 5:
+        return "🟡 Neutro"
+    else:
+        return "🔴 Frágil"
+
+# =====================================================
+# PREÇO JUSTO — BENJAMIN GRAHAM
+# =====================================================
+def preco_justo_graham(info):
+    eps = info.get("trailingEps")
+    bvps = info.get("bookValue")
+
+    if not eps or not bvps or eps <= 0 or bvps <= 0:
+        return None
+
+    return math.sqrt(22.5 * eps * bvps)
+
+# =====================================================
+# LEITURA AUTOMÁTICA — AÇÃO
+# =====================================================
+def leitura_refera_acao(m, score):
+    texto = []
+
+    if score >= 8:
+        texto.append("Empresa com fundamentos fortes e boa eficiência operacional.")
+    elif score >= 5:
+        texto.append("Empresa saudável, mas com pontos de atenção.")
+    else:
+        texto.append("Fundamentos frágeis ou inconsistentes.")
+
+    if m.get("Crescimento Lucro (%)") and m["Crescimento Lucro (%)"] > 10:
+        texto.append("Apresenta crescimento relevante de lucros.")
+    elif m.get("Crescimento Lucro (%)") and m["Crescimento Lucro (%)"] < 0:
+        texto.append("Lucros em retração recente.")
+
+    if m.get("P/L") and m["P/L"] < 12:
+        texto.append("Mercado precifica a ação a múltiplos atrativos.")
+    elif m.get("P/L") and m["P/L"] > 20:
+        texto.append("Preço já embute expectativas elevadas.")
+
+    return texto
+
+
 def fii_cards(df_cards):
     """
     Renderiza cards padronizados de FIIs.
@@ -1483,7 +1577,7 @@ elif st.session_state.page == "acao":
     scroll_to_top()
 
     st.subheader("📈 Análise Fundamentalista de Ações")
-    st.caption("Saúde financeira, qualidade e crescimento no tempo")
+    st.caption("Saúde, preço e crescimento com critérios objetivos")
 
     ticker = st.selectbox(
         "Selecione a ação",
@@ -1500,96 +1594,64 @@ elif st.session_state.page == "acao":
         key="acao_individual"
     )
 
-    # =====================
-    # CARREGA DADOS (COM TRY)
-    # =====================
-    try:
-        info, hist = carregar_dados_acao(ticker)
-        m = extrair_metricas_acao(info)
-    except Exception as e:
-        st.error("Erro ao carregar dados da ação.")
-        st.stop()
+    info, hist = carregar_dados_acao(ticker)
+    m = extrair_metricas_acao(info)
 
     # =====================
-    # VISÃO RÁPIDA
+    # SCORE REFERA
     # =====================
-    st.markdown("### 📌 Visão rápida")
+    st.markdown("### 🧭 Score Refera")
 
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Preço", safe(m.get("Preço Atual"), brl))
-    c2.metric("P/L", safe(m.get("P/L"), lambda x: f"{x:.1f}"))
-    c3.metric("P/VP", safe(m.get("P/VP"), lambda x: f"{x:.2f}"))
-    c4.metric("ROE", safe(m.get("ROE (%)"), pct))
+    score, criterios = score_refera_acao(m)
+
+    c1, c2 = st.columns([1,3])
+    c1.metric("Score", f"{score}/10")
+    c2.metric("Classificação", classificacao_score(score))
+
+    for nome, ok in criterios:
+        st.markdown(f"- {'✅' if ok else '❌'} {nome}")
 
     st.divider()
 
     # =====================
-    # SAÚDE FINANCEIRA
+    # PREÇO JUSTO (GRAHAM)
     # =====================
-    st.markdown("### 🧱 Saúde da empresa")
+    st.markdown("### 💰 Preço justo (Benjamin Graham)")
 
-    st.metric(
-        "Classificação Refera",
-        classificar_saude(m)
-    )
+    preco_justo = preco_justo_graham(info)
+    preco_atual = m.get("Preço Atual")
 
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Margem Líquida", safe(m.get("Margem Líquida (%)"), pct))
-    c2.metric("ROA", safe(m.get("ROA (%)"), pct))
-    c3.metric("Dívida / Patrimônio", safe(m.get("Dívida/Patrimônio"), lambda x: f"{x:.2f}"))
+    if preco_justo and preco_atual:
+        margem = (preco_justo / preco_atual - 1) * 100
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Preço atual", brl(preco_atual))
+        c2.metric("Preço justo", brl(preco_justo))
+        c3.metric("Margem de segurança", pct(margem))
+    else:
+        st.info("Dados insuficientes para calcular preço justo.")
 
     st.divider()
 
     # =====================
-    # QUALIDADE & EFICIÊNCIA
+    # LEITURA AUTOMÁTICA
     # =====================
-    st.markdown("### 🧠 Qualidade operacional")
+    st.markdown("### 🧠 Leitura objetiva")
 
-    c1, c2, c3 = st.columns(3)
-    c1.metric("ROIC", safe(m.get("ROIC (%)"), pct))
-    c2.metric("Margem Operacional", safe(m.get("Margem Operacional (%)"), pct))
-    c3.metric("Free Cash Flow", safe(m.get("FCF (R$ bi)"), lambda x: f"R$ {x:.1f} bi"))
-
-    st.divider()
-
-    # =====================
-    # CRESCIMENTO
-    # =====================
-    st.markdown("### 🚀 Crescimento")
-
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Receita (5a)", safe(m.get("Crescimento Receita (%)"), pct))
-    c2.metric("Lucro (5a)", safe(m.get("Crescimento Lucro (%)"), pct))
-    c3.metric("EPS (5a)", safe(m.get("Crescimento EPS (%)"), pct))
-
-    st.divider()
-
-    # =====================
-    # VALUATION SIMPLES
-    # =====================
-    st.markdown("### 💰 Leitura de valuation")
-
-    leitura = leitura_valor_acao(m)
+    leitura = leitura_refera_acao(m, score)
     for l in leitura:
         st.markdown(f"- {l}")
 
     st.divider()
 
     # =====================
-    # BACKTEST
+    # GRÁFICO
     # =====================
-    st.markdown("### ⏱️ Valorização histórica")
-
     if hist is not None and not hist.empty:
-        retorno_total, retorno_anual = backtest_valorizacao(hist)
-
-        c1, c2 = st.columns(2)
-        c1.metric("Retorno total", safe(retorno_total, pct))
-        c2.metric("Retorno anualizado", safe(retorno_anual, pct))
-
-        st.plotly_chart(grafico_preco_acao(hist, ticker),use_container_width=True)
-
-    st.divider()
+        st.plotly_chart(
+            grafico_preco_acao(hist, ticker),
+            use_container_width=True
+        )
 
     st.info(
         "Análise quantitativa baseada em dados públicos. "
