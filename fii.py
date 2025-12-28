@@ -477,6 +477,35 @@ def backtest_valorizacao(hist):
 # =====================================================
 # UI — CARDS DE FIIs
 # =====================================================
+def comparar_com_selic(dy_anual):
+    """
+    Compara o Dividend Yield anual do FII com a Selic líquida.
+    
+    Retorna uma leitura qualitativa objetiva.
+    """
+
+    if dy_anual is None:
+        return "Sem dados"
+
+    margem = 2.0  # margem de segurança em pontos percentuais
+
+    if dy_anual >= SELIC_ANUAL + margem:
+        return "Acima da Selic"
+    elif dy_anual <= SELIC_ANUAL - margem:
+        return "Abaixo da Selic"
+    else:
+        return "Em linha com a Selic"
+def calcular_rendimento_mensal(dy_anual):
+    """
+    Converte Dividend Yield anual (%) em rendimento mensal equivalente (%),
+    assumindo capitalização composta.
+    """
+
+    if dy_anual is None or dy_anual <= 0:
+        return None
+
+    return ((1 + dy_anual / 100) ** (1 / 12) - 1) * 100
+
 def fii_cards(df_cards):
     """
     Renderiza cards padronizados de FIIs.
