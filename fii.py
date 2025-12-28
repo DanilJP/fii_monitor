@@ -648,6 +648,79 @@ def backtest_valorizacao(hist):
     retorno_anual = ((preco_final / preco_inicial) ** (1 / anos) - 1) * 100
 
     return retorno_total, retorno_anual
+def leitura_valor_acao(metricas):
+    """
+    Gera uma leitura qualitativa simples de valuation e qualidade
+    a partir das métricas fundamentais da ação.
+    """
+
+    leitura = []
+
+    pl = metricas.get("P/L")
+    pvp = metricas.get("P/VP")
+    roe = metricas.get("ROE (%)")
+    crescimento = metricas.get("Crescimento Lucro (%)")
+    divida = metricas.get("Dívida/Patrimônio")
+
+    # ======================
+    # P/L
+    # ======================
+    if pl:
+        if pl < 10:
+            leitura.append("P/L baixo para o mercado — pode indicar desconto ou risco percebido.")
+        elif pl <= 18:
+            leitura.append("P/L em faixa saudável para empresa madura.")
+        else:
+            leitura.append("P/L elevado — mercado precifica crescimento futuro.")
+
+    # ======================
+    # P/VP
+    # ======================
+    if pvp:
+        if pvp < 1:
+            leitura.append("P/VP abaixo de 1 — empresa negociada abaixo do valor patrimonial.")
+        elif pvp <= 2:
+            leitura.append("P/VP compatível com empresas de boa qualidade.")
+        else:
+            leitura.append("P/VP elevado — qualidade e retornos já estão no preço.")
+
+    # ======================
+    # ROE
+    # ======================
+    if roe:
+        if roe >= 15:
+            leitura.append("ROE elevado — empresa eficiente na geração de retorno ao acionista.")
+        elif roe >= 10:
+            leitura.append("ROE aceitável para empresa estável.")
+        else:
+            leitura.append("ROE baixo — atenção à eficiência operacional.")
+
+    # ======================
+    # Crescimento
+    # ======================
+    if crescimento:
+        if crescimento >= 10:
+            leitura.append("Lucro em crescimento consistente.")
+        elif crescimento > 0:
+            leitura.append("Crescimento de lucro modesto.")
+        else:
+            leitura.append("Lucro em queda — ponto de atenção.")
+
+    # ======================
+    # Dívida
+    # ======================
+    if divida:
+        if divida < 1:
+            leitura.append("Estrutura de capital saudável.")
+        elif divida < 2:
+            leitura.append("Alavancagem moderada.")
+        else:
+            leitura.append("Alavancagem elevada — exige atenção.")
+
+    if not leitura:
+        leitura.append("Dados insuficientes para uma leitura clara de valuation.")
+
+    return leitura
 
 if st.session_state.page == "home":
     scroll_to_top()
@@ -670,8 +743,11 @@ if st.session_state.page == "home":
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
     home_card("📊 Rankings", "Top FIIs por critérios", "top10")
+    st.write('')
     home_card("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes")
+    st.write('')
     home_card("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada")
+    st.write('')
     home_card("🧠 Screener", "Filtros personalizados", "screener")
 
     st.markdown('</div>', unsafe_allow_html=True)
@@ -680,9 +756,13 @@ if st.session_state.page == "home":
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
     home_card("🔎 FII Individual", "Análise completa do fundo", "fii")
+    st.write('')
     home_card("⚖️ Comparador", "Comparação lado a lado", "comparador")
+    st.write('')
     home_card("📈 Ações", "Análise fundamentalista", "acao")
+    st.write('')
     home_card("📰 Notícias", "Contexto recente por FII", "noticias")
+    st.write('')
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -690,6 +770,7 @@ if st.session_state.page == "home":
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
     home_card("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento")
+    st.write('')
     home_card("💼 Carteira", "Simulação da carteira", "carteira")
 
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1563,10 +1644,22 @@ elif st.session_state.page == "acao":
     )
 
     
-if st.button("← Voltar", key="voltar_home"):
-    st.session_state.page = "home"
-    st.rerun()
-
+st.markdown(
+    """
+    <a href="?page=home"
+       style="
+           display:inline-block;
+           margin-top:12px;
+           text-decoration:none;
+           font-size:14px;
+           color:#9fb3c8;
+           cursor:pointer;
+       ">
+       ← Voltar
+    </a>
+    """,
+    unsafe_allow_html=True
+)
 
 
 
