@@ -760,6 +760,7 @@ def leitura_valor_acao(metricas):
 
 if st.session_state.page == "home":
     scroll_to_top()
+    coluna1, coluna2 = st.columns(2)
 
     st.markdown("""
     <h2 style="margin-bottom:4px;">🪙 Refera</h2>
@@ -775,21 +776,23 @@ if st.session_state.page == "home":
     </p>
     """, unsafe_allow_html=True)
 
-    st.markdown("### 📊 Rankings e Descoberta")
-    render_home_grid([
-        ("📊 Rankings", "Top FIIs por critérios", "top10"),
-        ("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes"),
-        ("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada"),
-        ("🧠 Screener", "Filtros personalizados", "screener"),
-    ])
+    with coluna1:
+        st.markdown("### 📊 Rankings e Descoberta")
+        render_home_grid([
+            ("📊 Rankings", "Top FIIs por critérios", "top10"),
+            ("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes"),
+            ("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada"),
+            ("🧠 Screener", "Filtros personalizados", "screener"),
+        ])
 
-    st.markdown("### 🧭 Análise e Decisão")
-    render_home_grid([
-        ("🔎 FII Individual", "Análise completa do fundo", "fii"),
-        ("⚖️ Comparador", "Comparação lado a lado", "comparador"),
-        ("📈 Ações", "Análise fundamentalista", "acao"),
-        ("📰 Notícias", "Contexto recente por FII", "noticias"),
-    ])
+    with coluna2:
+        st.markdown("### 🧭 Análise e Decisão")
+        render_home_grid([
+            ("🔎 FII Individual", "Análise completa do fundo", "fii"),
+            ("⚖️ Comparador", "Comparação lado a lado", "comparador"),
+            ("📈 Ações", "Análise fundamentalista", "acao"),
+            ("📰 Notícias", "Contexto recente por FII", "noticias"),
+        ])
 
     st.markdown("### 🔁 Planejamento")
     render_home_grid([
