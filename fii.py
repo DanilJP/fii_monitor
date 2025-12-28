@@ -9,8 +9,6 @@ import feedparser
 import pandas as pd
 import streamlit as st
 import yfinance as yf
-import streamlit.components.v1 as components
-home_placeholder = st.empty()
 
 st.markdown("""
 <style>
@@ -152,12 +150,6 @@ st.set_page_config(
     page_title="FIIs Monitor",
     layout="wide"
 )
-# =========================
-# ROTEAMENTO VIA QUERY PARAM
-# =========================
-params = st.query_params
-if "page" in params:
-    st.session_state.page = params["page"]
 
 # =====================================================
 # SESSION STATE PADRÃO
@@ -217,123 +209,14 @@ def card(titulo, descricao, page_key):
         st.rerun()
 
 def home_card(titulo, descricao, page_key):
-    st.markdown(
-        f"""
-        <div class="home-card" onclick="window.location.href='?page={page_key}'">
-            <div class="home-card-title">{titulo}</div>
-            <div class="home-card-desc">{descricao}</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-
-def render_home():
-    html = """
-    <style>
-    .home-section { margin-bottom: 28px; }
-
-    .home-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-    }
-
-    .home-card {
-        background-color: #0b1f33;
-        border: 1px solid rgba(120,160,200,0.25);
-        border-radius: 16px;
-        padding: 18px 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .home-card:hover {
-        background-color: #102a44;
-        border-color: rgba(140,180,220,0.35);
-        transform: translateY(-2px);
-    }
-
-    .home-card-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: #e6edf3;
-        margin-bottom: 6px;
-        text-align: center;
-    }
-
-    .home-card-desc {
-        font-size: 13px;
-        color: #b8c4d6;
-        line-height: 1.4;
-        text-align: center;
-    }
-    </style>
-
-    <div class="home-section">
-        <h3>📊 Rankings e Descoberta</h3>
-        <div class="home-grid">
-            <div class="home-card" onclick="location.href='?page=top10'">
-                <div class="home-card-title">📊 Rankings</div>
-                <div class="home-card-desc">Top FIIs por critérios</div>
-            </div>
-            <div class="home-card" onclick="location.href='?page=grandes'">
-                <div class="home-card-title">🏦 Grandes FIIs</div>
-                <div class="home-card-desc">Maior patrimônio do mercado</div>
-            </div>
-            <div class="home-card" onclick="location.href='?page=entrada'">
-                <div class="home-card-title">💸 FIIs de Entrada</div>
-                <div class="home-card-desc">Cotas acessíveis e liquidez</div>
-            </div>
-            <div class="home-card" onclick="location.href='?page=screener'">
-                <div class="home-card-title">🧠 Screener</div>
-                <div class="home-card-desc">Filtros personalizados</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="home-section">
-        <h3>🧭 Análise e Decisão</h3>
-        <div class="home-grid">
-            <div class="home-card" onclick="location.href='?page=fii'">
-                <div class="home-card-title">🔎 FII Individual</div>
-                <div class="home-card-desc">Análise completa do fundo</div>
-            </div>
-            <div class="home-card" onclick="location.href='?page=comparador'">
-                <div class="home-card-title">⚖️ Comparador</div>
-                <div class="home-card-desc">Comparação lado a lado</div>
-            </div>
-            <div class="home-card" onclick="location.href='?page=acao'">
-                <div class="home-card-title">📈 Ações</div>
-                <div class="home-card-desc">Análise fundamentalista</div>
-            </div>
-            <div class="home-card" onclick="location.href='?page=noticias'">
-                <div class="home-card-title">📰 Notícias</div>
-                <div class="home-card-desc">Contexto recente</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="home-section">
-        <h3>🔁 Planejamento</h3>
-        <div class="home-grid">
-            <div class="home-card" onclick="location.href='?page=reinvestimento'">
-                <div class="home-card-title">🔁 Reinvestimento</div>
-                <div class="home-card-desc">Simulador de dividendos</div>
-            </div>
-            <div class="home-card" onclick="location.href='?page=carteira'">
-                <div class="home-card-title">💼 Carteira</div>
-                <div class="home-card-desc">Simulação da carteira</div>
-            </div>
-        </div>
-    </div>
-    """
-
-    components.html(html, height=900, scrolling=False)
-
-
-
+    with st.container(border=True):
+        if st.button(
+            f"{titulo}\n\n{descricao}",
+            key=f"home_{page_key}",
+            use_container_width=True
+        ):
+            st.session_state.page = page_key
+            st.rerun()
 
 
 import plotly.express as px
@@ -810,52 +693,46 @@ def leitura_valor_acao(metricas):
 
 if st.session_state.page == "home":
     scroll_to_top()
-    home_placeholder.empty()
 
-    with home_placeholder:
+    st.markdown("## 🪙 Refera")
+    st.caption("Onde decisões de investimento encontram fundamento")
 
-        st.markdown("""
-        <h2 style="margin-bottom:4px;">🪙 Refera</h2>
-        <p style="font-size:15px; color:#c9d4e3;">
-            Onde decisões de investimento encontram fundamento
-        </p>
-        """, unsafe_allow_html=True)
+    st.markdown(
+        "Plataforma quantitativa para análise de FIIs e ações, "
+        "com foco em consistência e critérios objetivos."
+    )
 
-        st.markdown("""
-        <p style="font-size:14px; line-height:1.6; color:#b8c4d6;">
-            Plataforma quantitativa para análise de FIIs e ações,
-            com foco em consistência, critérios objetivos e visão de longo prazo.
-        </p>
-        """, unsafe_allow_html=True)
+    st.markdown("### 📊 Rankings e Descoberta")
+    c1, c2 = st.columns(2)
+    with c1:
+        home_card("📊 Rankings", "Top FIIs por critérios", "top10")
+        home_card("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada")
+    with c2:
+        home_card("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes")
+        home_card("🧠 Screener", "Filtros personalizados", "screener")
 
-        st.markdown("### 📊 Rankings e Descoberta")
-        render_home_grid([
-            ("📊 Rankings", "Top FIIs por critérios", "top10"),
-            ("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes"),
-            ("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada"),
-            ("🧠 Screener", "Filtros personalizados", "screener"),
-        ])
+    st.markdown("### 🧭 Análise e Decisão")
+    c1, c2 = st.columns(2)
+    with c1:
+        home_card("🔎 FII Individual", "Análise completa do fundo", "fii")
+        home_card("📈 Ações", "Análise fundamentalista", "acao")
+    with c2:
+        home_card("⚖️ Comparador", "Comparação lado a lado", "comparador")
+        home_card("📰 Notícias", "Contexto recente por FII", "noticias")
 
-        st.markdown("### 🧭 Análise e Decisão")
-        render_home_grid([
-            ("🔎 FII Individual", "Análise completa do fundo", "fii"),
-            ("⚖️ Comparador", "Comparação lado a lado", "comparador"),
-            ("📈 Ações", "Análise fundamentalista", "acao"),
-            ("📰 Notícias", "Contexto recente por FII", "noticias"),
-        ])
+    st.markdown("### 🔁 Planejamento")
+    c1, c2 = st.columns(2)
+    with c1:
+        home_card("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento")
+    with c2:
+        home_card("💼 Carteira", "Simulação da carteira", "carteira")
 
-        st.markdown("### 🔁 Planejamento")
-        render_home_grid([
-            ("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento"),
-            ("💼 Carteira", "Simulação da carteira", "carteira"),
-        ])
 
 
 # =====================================================
 # TAB — MÉTRICAS
 # =====================================================
 elif st.session_state.page == 'metricas':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("📘 Entendendo as principais métricas dos FIIs")
 
@@ -964,7 +841,6 @@ elif st.session_state.page == 'metricas':
 # TAB — TOP 10 DESCONTADOS
 # =====================================================
 elif st.session_state.page == 'top10':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("📊 Top 10 FIIs Descontados com Qualidade")
 
@@ -1029,7 +905,6 @@ elif st.session_state.page == 'top10':
 # TAB — GRANDES FIIs
 # =====================================================
 elif st.session_state.page == 'grandes':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("🏦 Grandes FIIs do Mercado")
     st.caption("Fundos com maior patrimônio líquido e alta relevância no mercado.")
@@ -1056,7 +931,6 @@ elif st.session_state.page == 'grandes':
 # TAB — FIIs DE ENTRADA
 # =====================================================
 elif st.session_state.page == 'entrada':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("💸 FIIs de Entrada")
     st.caption(
@@ -1089,7 +963,6 @@ elif st.session_state.page == 'entrada':
 # TAB — SCREENER PERSONALIZADO
 # =====================================================
 elif st.session_state.page == 'screener':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("🧠 Screener Personalizado de FIIs")
     st.caption("Crie seus próprios filtros para encontrar FIIs alinhados ao seu perfil.")
@@ -1158,7 +1031,6 @@ elif st.session_state.page == 'screener':
 # TAB — COMPARADOR DE FIIs
 # =====================================================
 elif st.session_state.page == 'comparador':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("⚖️ Comparador de FIIs")
     st.caption("Compare dois FIIs lado a lado com critérios objetivos.")
@@ -1234,7 +1106,6 @@ elif st.session_state.page == 'comparador':
 # TAB — NOTÍCIAS
 # =====================================================
 elif st.session_state.page == 'noticias':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("📰 Notícias recentes por FII")
     st.caption(
@@ -1287,7 +1158,6 @@ elif st.session_state.page == 'noticias':
 # TAB — SIMULADOR DE REINVESTIMENTO
 # =====================================================
 elif st.session_state.page == 'reinvestimento':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("🔁 Simulador de Reinvestimento de Dividendos")
     st.caption(
@@ -1372,7 +1242,6 @@ elif st.session_state.page == 'reinvestimento':
 # TAB — SIMULAÇÃO DE CARTEIRA
 # =====================================================
 elif st.session_state.page == 'carteira':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("💼 Simulação da sua Carteira de FIIs")
     st.caption(
@@ -1477,7 +1346,6 @@ elif st.session_state.page == 'carteira':
 # TAB — ANÁLISE INDIVIDUAL DE FII
 # =====================================================
 elif st.session_state.page == 'fii':
-    home_placeholder.empty()
     scroll_to_top()
     st.subheader("🔎 Análise Individual de FII")
     st.caption("Visão consolidada e objetiva para apoio à decisão")
@@ -1612,7 +1480,6 @@ elif st.session_state.page == 'fii':
     )
 
 elif st.session_state.page == "acao":
-    home_placeholder.empty()
     scroll_to_top()
 
     st.subheader("📈 Análise Fundamentalista de Ações")
@@ -1747,6 +1614,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.divider()
+if st.button("← Voltar para Home"):
+    st.session_state.page = "home"
+    st.rerun()
 
 
 
