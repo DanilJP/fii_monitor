@@ -12,10 +12,6 @@ import yfinance as yf
 
 st.markdown("""
 <style>
-
-/* =========================
-   GRID DE CARDS (HOME)
-========================= */
 .home-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -23,21 +19,24 @@ st.markdown("""
     margin-top: 12px;
 }
 
-/* Card clicável */
 .home-card {
     background-color: #0b1f33;
     border: 1px solid rgba(120,160,200,0.25);
     border-radius: 16px;
     padding: 18px 14px;
-    cursor: pointer;
     transition: all 0.2s ease;
-    height: 100%;
 }
 
 .home-card:hover {
     background-color: #102a44;
     border-color: rgba(140,180,220,0.35);
     transform: translateY(-2px);
+}
+
+.home-card a {
+    text-decoration: none;
+    display: block;
+    height: 100%;
 }
 
 .home-card-title {
@@ -54,16 +53,9 @@ st.markdown("""
     line-height: 1.4;
     text-align: center;
 }
-
-/* MOBILE: mantém 2 colunas até bem pequeno */
-@media (max-width: 480px) {
-    .home-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
 </style>
 """, unsafe_allow_html=True)
+
 
 # st.markdown("""
 # <style>
@@ -158,6 +150,12 @@ st.set_page_config(
     page_title="FIIs Monitor",
     layout="centered"
 )
+# =========================
+# ROTEAMENTO VIA QUERY PARAM
+# =========================
+params = st.query_params
+if "page" in params:
+    st.session_state.page = params["page"]
 
 # =====================================================
 # SESSION STATE PADRÃO
@@ -217,14 +215,18 @@ def card(titulo, descricao, page_key):
         st.rerun()
 
 def home_card(titulo, descricao, page_key):
-    if st.button(
-        label=f"{titulo}|||{descricao}",
-        key=page_key,
-        help=titulo,
-        use_container_width=True
-    ):
-        st.session_state.page = page_key
-        st.rerun()
+    st.markdown(
+        f"""
+        <div class="home-card">
+            <a href="?page={page_key}">
+                <div class="home-card-title">{titulo}</div>
+                <div class="home-card-desc">{descricao}</div>
+            </a>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 
 def render_home_card(titulo, descricao, page_key):
     clicked = st.button(
@@ -649,8 +651,6 @@ def backtest_valorizacao(hist):
 
 if st.session_state.page == "home":
     scroll_to_top()
-if st.session_state.page == "home":
-    scroll_to_top()
 
     st.markdown("""
     <h2 style="margin-bottom:4px;">🪙 Refera</h2>
@@ -669,30 +669,31 @@ if st.session_state.page == "home":
     st.markdown("### 📊 Rankings e Descoberta")
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
-    render_home_card("📊 Rankings", "Top FIIs por critérios", "top10")
-    render_home_card("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes")
-    render_home_card("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada")
-    render_home_card("🧠 Screener", "Filtros personalizados", "screener")
+    home_card("📊 Rankings", "Top FIIs por critérios", "top10")
+    home_card("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes")
+    home_card("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada")
+    home_card("🧠 Screener", "Filtros personalizados", "screener")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("### 🧭 Análise e Decisão")
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
-    render_home_card("🔎 FII Individual", "Análise completa do fundo", "fii")
-    render_home_card("⚖️ Comparador", "Comparação lado a lado", "comparador")
-    render_home_card("📈 Ações", "Análise fundamentalista", "acao")
-    render_home_card("📰 Notícias", "Contexto recente por FII", "noticias")
+    home_card("🔎 FII Individual", "Análise completa do fundo", "fii")
+    home_card("⚖️ Comparador", "Comparação lado a lado", "comparador")
+    home_card("📈 Ações", "Análise fundamentalista", "acao")
+    home_card("📰 Notícias", "Contexto recente por FII", "noticias")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("### 🔁 Planejamento")
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
-    render_home_card("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento")
-    render_home_card("💼 Carteira", "Simulação da carteira", "carteira")
+    home_card("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento")
+    home_card("💼 Carteira", "Simulação da carteira", "carteira")
 
     st.markdown('</div>', unsafe_allow_html=True)
+
 
 # =====================================================
 # TAB — MÉTRICAS
