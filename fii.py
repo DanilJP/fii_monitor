@@ -217,15 +217,14 @@ def card(titulo, descricao, page_key):
 def home_card(titulo, descricao, page_key):
     st.markdown(
         f"""
-        <div class="home-card">
-            <a href="?page={page_key}">
-                <div class="home-card-title">{titulo}</div>
-                <div class="home-card-desc">{descricao}</div>
-            </a>
+        <div class="home-card" onclick="window.location.href='?page={page_key}'">
+            <div class="home-card-title">{titulo}</div>
+            <div class="home-card-desc">{descricao}</div>
         </div>
         """,
         unsafe_allow_html=True
     )
+
 
 
 def render_home_card(titulo, descricao, page_key):
@@ -743,11 +742,8 @@ if st.session_state.page == "home":
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
     home_card("📊 Rankings", "Top FIIs por critérios", "top10")
-    st.write('')
     home_card("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes")
-    st.write('')
     home_card("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada")
-    st.write('')
     home_card("🧠 Screener", "Filtros personalizados", "screener")
 
     st.markdown('</div>', unsafe_allow_html=True)
@@ -756,21 +752,16 @@ if st.session_state.page == "home":
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
     home_card("🔎 FII Individual", "Análise completa do fundo", "fii")
-    st.write('')
     home_card("⚖️ Comparador", "Comparação lado a lado", "comparador")
-    st.write('')
     home_card("📈 Ações", "Análise fundamentalista", "acao")
-    st.write('')
     home_card("📰 Notícias", "Contexto recente por FII", "noticias")
-    st.write('')
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("### 🔁 Planejamento ")
+    st.markdown("### 🔁 Planejamento")
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
     home_card("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento")
-    st.write('')
     home_card("💼 Carteira", "Simulação da carteira", "carteira")
 
     st.markdown('</div>', unsafe_allow_html=True)
