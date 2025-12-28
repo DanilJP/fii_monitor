@@ -1659,23 +1659,6 @@ elif st.session_state.page == "acao":
     )
 
     
-st.markdown(
-    """
-    <a href="?page=home"
-       style="
-           display:inline-block;
-           margin-top:12px;
-           text-decoration:none;
-           font-size:14px;
-           color:#9fb3c8;
-           cursor:pointer;
-       ">
-       ← Voltar
-    </a>
-    """,
-    unsafe_allow_html=True
-)
-
 st.divider()
 if st.button("← Voltar para Home"):
     st.session_state.page = "home"
