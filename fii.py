@@ -149,7 +149,7 @@ st.markdown("""
 # =====================================================
 st.set_page_config(
     page_title="FIIs Monitor",
-    layout="centered"
+    layout="wide"
 )
 # =========================
 # ROTEAMENTO VIA QUERY PARAM
@@ -229,44 +229,46 @@ def home_card(titulo, descricao, page_key):
 
 
 def render_home_grid(cards):
-    html = """
+    height = 140 * ((len(cards) + 1) // 2)
+
+    html = f"""
     <style>
-    .home-grid {
+    .home-grid {{
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 14px;
-        margin-top: 12px;
-    }
+        gap: 16px;
+        width: 100%;
+    }}
 
-    .home-card {
+    .home-card {{
         background-color: #0b1f33;
         border: 1px solid rgba(120,160,200,0.25);
         border-radius: 16px;
         padding: 18px 14px;
         cursor: pointer;
         transition: all 0.2s ease;
-    }
+    }}
 
-    .home-card:hover {
+    .home-card:hover {{
         background-color: #102a44;
         border-color: rgba(140,180,220,0.35);
         transform: translateY(-2px);
-    }
+    }}
 
-    .home-card-title {
+    .home-card-title {{
         font-size: 15px;
         font-weight: 600;
         color: #e6edf3;
         margin-bottom: 6px;
         text-align: center;
-    }
+    }}
 
-    .home-card-desc {
+    .home-card-desc {{
         font-size: 13px;
         color: #b8c4d6;
         line-height: 1.4;
         text-align: center;
-    }
+    }}
     </style>
 
     <div class="home-grid">
@@ -282,7 +284,8 @@ def render_home_grid(cards):
 
     html += "</div>"
 
-    components.html(html, height=260, scrolling=False)
+    components.html(html, height=height, scrolling=False)
+
 
 
 
@@ -760,7 +763,6 @@ def leitura_valor_acao(metricas):
 
 if st.session_state.page == "home":
     scroll_to_top()
-    coluna1, coluna2 = st.columns(2)
 
     st.markdown("""
     <h2 style="margin-bottom:4px;">🪙 Refera</h2>
@@ -776,30 +778,27 @@ if st.session_state.page == "home":
     </p>
     """, unsafe_allow_html=True)
 
-    with coluna1:
-        st.markdown("### 📊 Rankings e Descoberta")
-        render_home_grid([
-            ("📊 Rankings", "Top FIIs por critérios", "top10"),
-            ("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes"),
-            ("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada"),
-            ("🧠 Screener", "Filtros personalizados", "screener"),
-        ])
+    st.markdown("### 📊 Rankings e Descoberta")
+    render_home_grid([
+        ("📊 Rankings", "Top FIIs por critérios", "top10"),
+        ("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes"),
+        ("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada"),
+        ("🧠 Screener", "Filtros personalizados", "screener"),
+    ])
 
-    with coluna2:
-        st.markdown("### 🧭 Análise e Decisão")
-        render_home_grid([
-            ("🔎 FII Individual", "Análise completa do fundo", "fii"),
-            ("⚖️ Comparador", "Comparação lado a lado", "comparador"),
-            ("📈 Ações", "Análise fundamentalista", "acao"),
-            ("📰 Notícias", "Contexto recente por FII", "noticias"),
-        ])
+    st.markdown("### 🧭 Análise e Decisão")
+    render_home_grid([
+        ("🔎 FII Individual", "Análise completa do fundo", "fii"),
+        ("⚖️ Comparador", "Comparação lado a lado", "comparador"),
+        ("📈 Ações", "Análise fundamentalista", "acao"),
+        ("📰 Notícias", "Contexto recente por FII", "noticias"),
+    ])
 
     st.markdown("### 🔁 Planejamento")
     render_home_grid([
         ("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento"),
         ("💼 Carteira", "Simulação da carteira", "carteira"),
     ])
-
 
 
 # =====================================================
