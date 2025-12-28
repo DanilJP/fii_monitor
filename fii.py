@@ -64,7 +64,6 @@ st.caption(
     "Seleção diária de FIIs com análises, simuladores e notícias em um só lugar."
 )
 
-
 # =====================================================
 # LOAD E TRATAMENTO DOS DADOS
 # =====================================================
