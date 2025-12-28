@@ -246,15 +246,6 @@ def pct(v):
 
 def brl(v):
     return f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-# =====================================================
-# FUNÇÕES DE NEGÓCIO — FIIs
-# =====================================================
-st.title("📊 FIIs Monitor")
-
-st.caption(
-    "Seleção diária de FIIs com análises, simuladores e notícias em um só lugar."
-)
-
 
 # =====================================================
 # LOAD E TRATAMENTO DOS DADOS
