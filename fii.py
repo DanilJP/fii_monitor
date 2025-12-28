@@ -1576,7 +1576,7 @@ elif st.session_state.page == "acao":
             "ABEV3.SA","LREN3.SA","ASAI3.SA","MGLU3.SA","ARZZ3.SA",
             "RADL3.SA","FLRY3.SA","HAPV3.SA","RDOR3.SA",
             "VIVT3.SA","TIMS3.SA","TOTS3.SA","LWSA3.SA",
-            "SBSP3.SA","CSMG3.SA","SAPR11.SA"
+            "SBSP3.SA","CSMG3.SA","SAPR11.SA","ROXO34.SA"
         ],
         key="acao_individual"
     )
