@@ -766,7 +766,7 @@ if st.session_state.page == "home":
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("### 🔁 Planejamento")
+    st.markdown("### 🔁 Planejamento ")
     st.markdown('<div class="home-grid">', unsafe_allow_html=True)
 
     home_card("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento")
