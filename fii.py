@@ -9,6 +9,7 @@ import feedparser
 import pandas as pd
 import streamlit as st
 import yfinance as yf
+import streamlit.components.v1 as components
 
 st.markdown("""
 <style>
@@ -227,26 +228,62 @@ def home_card(titulo, descricao, page_key):
 
 
 
-def render_home_card(titulo, descricao, page_key):
-    clicked = st.button(
-        label="",
-        key=f"btn_{page_key}",
-        use_container_width=True
-    )
+def render_home_grid(cards):
+    html = """
+    <style>
+    .home-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-top: 12px;
+    }
 
-    st.markdown(
-        f"""
-        <div class="home-card">
+    .home-card {
+        background-color: #0b1f33;
+        border: 1px solid rgba(120,160,200,0.25);
+        border-radius: 16px;
+        padding: 18px 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .home-card:hover {
+        background-color: #102a44;
+        border-color: rgba(140,180,220,0.35);
+        transform: translateY(-2px);
+    }
+
+    .home-card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 6px;
+        text-align: center;
+    }
+
+    .home-card-desc {
+        font-size: 13px;
+        color: #b8c4d6;
+        line-height: 1.4;
+        text-align: center;
+    }
+    </style>
+
+    <div class="home-grid">
+    """
+
+    for titulo, desc, page in cards:
+        html += f"""
+        <div class="home-card" onclick="window.location.href='?page={page}'">
             <div class="home-card-title">{titulo}</div>
-            <div class="home-card-desc">{descricao}</div>
+            <div class="home-card-desc">{desc}</div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        """
 
-    if clicked:
-        st.session_state.page = page_key
-        st.rerun()
+    html += "</div>"
+
+    components.html(html, height=260, scrolling=False)
+
 
 
 import plotly.express as px
@@ -739,32 +776,27 @@ if st.session_state.page == "home":
     """, unsafe_allow_html=True)
 
     st.markdown("### 📊 Rankings e Descoberta")
-    st.markdown('<div class="home-grid">', unsafe_allow_html=True)
-
-    home_card("📊 Rankings", "Top FIIs por critérios", "top10")
-    home_card("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes")
-    home_card("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada")
-    home_card("🧠 Screener", "Filtros personalizados", "screener")
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    render_home_grid([
+        ("📊 Rankings", "Top FIIs por critérios", "top10"),
+        ("🏦 Grandes FIIs", "Maior patrimônio do mercado", "grandes"),
+        ("💸 FIIs de Entrada", "Cotas acessíveis e liquidez", "entrada"),
+        ("🧠 Screener", "Filtros personalizados", "screener"),
+    ])
 
     st.markdown("### 🧭 Análise e Decisão")
-    st.markdown('<div class="home-grid">', unsafe_allow_html=True)
-
-    home_card("🔎 FII Individual", "Análise completa do fundo", "fii")
-    home_card("⚖️ Comparador", "Comparação lado a lado", "comparador")
-    home_card("📈 Ações", "Análise fundamentalista", "acao")
-    home_card("📰 Notícias", "Contexto recente por FII", "noticias")
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    render_home_grid([
+        ("🔎 FII Individual", "Análise completa do fundo", "fii"),
+        ("⚖️ Comparador", "Comparação lado a lado", "comparador"),
+        ("📈 Ações", "Análise fundamentalista", "acao"),
+        ("📰 Notícias", "Contexto recente por FII", "noticias"),
+    ])
 
     st.markdown("### 🔁 Planejamento")
-    st.markdown('<div class="home-grid">', unsafe_allow_html=True)
+    render_home_grid([
+        ("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento"),
+        ("💼 Carteira", "Simulação da carteira", "carteira"),
+    ])
 
-    home_card("🔁 Reinvestimento", "Simulador de dividendos", "reinvestimento")
-    home_card("💼 Carteira", "Simulação da carteira", "carteira")
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # =====================================================
