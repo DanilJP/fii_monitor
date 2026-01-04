@@ -179,7 +179,7 @@ def info_card(titulo, itens):
                 conteudo += f"<li>❌ Distribuição de rendimentos não atrativa</li>"
             elif 'rendimento' in i:
                 if (row['DY (12M) Acumulado'] > 30) and ('❌' in i):
-                    conteudo = f"<li>❌ Distribuição de rendimento muito alta, necessário verificar</li>"
+                    conteudo += f"<li>❌ Distribuição de rendimento muito alta, necessário verificar</li>"
                 elif (row['DY (12M) Acumulado'] > 30) and ('❌' not in i):
                     pass
                 else:
