@@ -173,9 +173,6 @@ def decisao_card(decisao, score):
         unsafe_allow_html=True
     )
 
-score_perc = score/6
-decisao_card(decisao, score_perc)
-
 
 # =====================================================
 # BLOQUEIOS
@@ -188,8 +185,14 @@ def info_card(titulo, itens):
         for i in itens:
             if 'inconsistente' in i:
                 conteudo += f"<li>❌ Distribuição de rendimentos não atrativa</li>"
+            elif 'rendimento' in i:
+                if row['DY (12M) Acumulado'] > 30:
+                    conteudo = f"<li>❌ Distribuição de rendimento muito alta, necessário verificar</li>"
+                else:
+                    conteudo += f"<li>{i}</li>"
             else:
                 conteudo += f"<li>{i}</li>"
+
 
     else:
         conteudo = "<li>Nenhum item relevante.</li>"
@@ -205,6 +208,13 @@ def info_card(titulo, itens):
         """,
         unsafe_allow_html=True
     )
+
+if row['DY (12M) Acumulado'] > 30:
+    score -= 1
+
+score_perc = score/6
+decisao_card(decisao, score_perc)
+
 info_card("🔒 Bloqueios", bloqueios)
 info_card("🏆 Pontos Positivos", motivos)
 
