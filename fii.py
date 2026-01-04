@@ -73,10 +73,6 @@ hr {
 </style>
 """, unsafe_allow_html=True)
 
-if st.button("🔄 Limpar cache de dados"):
-    st.cache_data.clear()
-    st.success("Cache de dados limpo com sucesso.")
-    st.rerun()
 # =====================================================
 # PARÂMETROS DO CRITÉRIO REFERA
 # =====================================================
@@ -143,7 +139,7 @@ else:
 
 
 st.markdown(f"## {fii}")
-st.caption(f"Setor: {row['Setor']} • Análise quantitativa Refera")
+st.caption(f"Setor: {row['Setor']} • Análise quantitativa")
 
 
 def decisao_card(decisao, score):
