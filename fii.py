@@ -130,14 +130,6 @@ score = df[df["Fundos"] == fii].Score.iloc[0]
 bloqueios = df[df["Fundos"] == fii].Bloqueios.iloc[0]
 motivos = df[df["Fundos"] == fii].Motivos.iloc[0]
 
-if score == 6:
-    decisao = "🟢 APROVADO PELO CRITÉRIO REFERA"
-elif score >= 3:
-    decisao = "🟡 EXIGE CAUTELA — EM OBSERVAÇÃO"
-else:
-    decisao = "🔴 BLOQUEADO — RISCO FORA DO CRITÉRIO"
-
-
 st.markdown(f"## {fii}")
 st.caption(f"Setor: {row['Setor']} • Análise quantitativa")
 
@@ -211,6 +203,14 @@ def info_card(titulo, itens):
 
 if row['DY (12M) Acumulado'] > 30:
     score -= 1
+    
+if score == 6:
+    decisao = "🟢 APROVADO PELO CRITÉRIO REFERA"
+elif score >= 3:
+    decisao = "🟡 EXIGE CAUTELA — EM OBSERVAÇÃO"
+else:
+    decisao = "🔴 BLOQUEADO — RISCO FORA DO CRITÉRIO"
+
 
 score_perc = score/6
 decisao_card(decisao, score_perc)
