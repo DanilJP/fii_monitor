@@ -130,9 +130,9 @@ score = df[df["Fundos"] == fii].Score.iloc[0]
 bloqueios = df[df["Fundos"] == fii].Bloqueios.iloc[0]
 motivos = df[df["Fundos"] == fii].Motivos.iloc[0]
 
-if score >= 5:
+if score == 6:
     decisao = "🟢 APROVADO PELO CRITÉRIO REFERA"
-elif score >= 3:
+elif score >= 4:
     decisao = "🟡 EXIGE CAUTELA — EM OBSERVAÇÃO"
 else:
     decisao = "🔴 BLOQUEADO — RISCO FORA DO CRITÉRIO"
