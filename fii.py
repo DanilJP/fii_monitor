@@ -14,6 +14,22 @@ st.set_page_config(
     layout="centered"
 )
 
+is_mobile = st.session_state.get("is_mobile", False)
+
+st.markdown(
+    """
+    <script>
+    const isMobile = window.innerWidth < 768;
+    window.parent.postMessage(
+        { type: "streamlit:setSessionState", key: "is_mobile", value: isMobile },
+        "*"
+    );
+    </script>
+    """,
+    unsafe_allow_html=True
+)
+
+
 st.markdown("""
 <style>
 body {
@@ -333,48 +349,49 @@ st.altair_chart(chart, use_container_width=True)
 # GRÁFICO — DIVIDENDOS HISTÓRICOS (INTERATIVO)
 # =====================================================
 
-if df_yield is not None:
+if df_yield is not None and is_mobile:
 
-    st.markdown("### Dividendos Históricos")
+    st.markdown("### Dividendos")
 
-    hover = alt.selection_point(
-        fields=["Date"],
-        nearest=True,
-        on="mouseover",
-        empty="none"
+    modo = st.radio(
+        "Visualização",
+        ["Dividendos", "Yield"],
+        horizontal=True,
+        label_visibility="collapsed"
     )
 
-    bars = (
-        alt.Chart(df_yield)
-        .mark_bar()
-        .encode(
-            x=alt.X("Date:T", title=""),
-            y=alt.Y("Dividend:Q", title="Dividendo (R$)"),
-            tooltip=[
-                alt.Tooltip("Date:T", title="Mês"),
-                alt.Tooltip("Dividend:Q", title="Dividendo", format=".3f")
-            ]
+    if modo == "Dividendos":
+        chart = (
+            alt.Chart(df_yield)
+            .mark_bar(color="#38bdf8")
+            .encode(
+                x=alt.X("Date:T", title="", axis=alt.Axis(labelAngle=0)),
+                y=alt.Y("Dividend:Q", title="Dividendo (R$)"),
+                tooltip=[
+                    alt.Tooltip("Date:T", title="Mês"),
+                    alt.Tooltip("Dividend:Q", title="Dividendo", format=".3f")
+                ]
+            )
+            .properties(height=260)
         )
-    )
 
-    points = bars.mark_point(opacity=0).add_params(hover)
-
-    rule = (
-        alt.Chart(df_yield)
-        .mark_rule(color="#94a3b8")
-        .encode(
-            x="Date:T"
+    else:
+        chart = (
+            alt.Chart(df_yield)
+            .mark_line(color="#22c55e", strokeWidth=3)
+            .encode(
+                x=alt.X("Date:T", title=""),
+                y=alt.Y("Yield (%):Q", title="Yield (%)"),
+                tooltip=[
+                    alt.Tooltip("Date:T", title="Mês"),
+                    alt.Tooltip("Yield (%):Q", title="Yield", format=".2f")
+                ]
+            )
+            .properties(height=260)
         )
-        .transform_filter(hover)
-    )
 
-    chart_div = (
-        alt.layer(bars, points, rule)
-        .properties(height=260)
-        .interactive()
-    )
+    st.altair_chart(chart, use_container_width=True)
 
-    st.altair_chart(chart_div, use_container_width=True)
 
 # =====================================================
 # GRÁFICO — DIVIDENDOS x YIELD (INTERATIVO)
