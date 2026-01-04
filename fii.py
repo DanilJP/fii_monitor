@@ -301,8 +301,10 @@ st.markdown("### Histórico de Preço")
 periodo = st.radio(
     "Período",
     ["1M", "3M", "6M", "12M"],
+    index = 3,
     horizontal=True,
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    
 )
 
 mapa_periodo = {
@@ -345,110 +347,101 @@ chart = (
 
 st.altair_chart(chart, use_container_width=True)
 
-# =====================================================
-# GRÁFICO — DIVIDENDOS HISTÓRICOS (INTERATIVO)
-# =====================================================
 
-if df_yield is not None and is_mobile:
+st.markdown("### Dividendos & Yield")
 
-    st.markdown("### Dividendos")
+dias = mapa_periodo[periodo]
+data_inicio = df_yield["Date"].max() - pd.Timedelta(days=dias)
+df_div_filtrado = df_yield[df_yield["Date"] >= data_inicio]
 
-    modo = st.radio(
-        "Visualização",
-        ["Dividendos", "Yield"],
-        horizontal=True,
-        label_visibility="collapsed"
-    )
+st.markdown("#### Dividendos Mensais")
 
-    if modo == "Dividendos":
-        chart = (
-            alt.Chart(df_yield)
-            .mark_bar(color="#38bdf8")
-            .encode(
-                x=alt.X("Date:T", title="", axis=alt.Axis(labelAngle=0)),
-                y=alt.Y("Dividend:Q", title="Dividendo (R$)"),
-                tooltip=[
-                    alt.Tooltip("Date:T", title="Mês"),
-                    alt.Tooltip("Dividend:Q", title="Dividendo", format=".3f")
-                ]
-            )
-            .properties(height=260)
-        )
-
-    else:
-        chart = (
-            alt.Chart(df_yield)
-            .mark_line(color="#22c55e", strokeWidth=3)
-            .encode(
-                x=alt.X("Date:T", title=""),
-                y=alt.Y("Yield (%):Q", title="Yield (%)"),
-                tooltip=[
-                    alt.Tooltip("Date:T", title="Mês"),
-                    alt.Tooltip("Yield (%):Q", title="Yield", format=".2f")
-                ]
-            )
-            .properties(height=260)
-        )
-
-    st.altair_chart(chart, use_container_width=True)
-
-
-# =====================================================
-# GRÁFICO — DIVIDENDOS x YIELD (INTERATIVO)
-# =====================================================
-
-if df_yield is not None:
-
-    st.markdown("### Dividendos x Yield Histórico")
-
-    hover = alt.selection_point(
-        fields=["Date"],
-        nearest=True,
-        on="mouseover",
-        clear="mouseout"
-    )
-
-
-    base = alt.Chart(df_yield).encode(
-        x=alt.X("Date:T", title="")
-    )
-
-    bars = base.mark_bar(opacity=0.55).encode(
+chart_div = (
+    alt.Chart(df_div_filtrado)
+    .mark_bar(color="#38bdf8")
+    .encode(
+        x=alt.X("Date:T", title="", axis=alt.Axis(labelAngle=0)),
         y=alt.Y("Dividend:Q", title="Dividendo (R$)"),
         tooltip=[
             alt.Tooltip("Date:T", title="Mês"),
-            alt.Tooltip("Dividend:Q", title="Dividendo", format=".3f"),
-            alt.Tooltip("Yield (%):Q", title="Yield", format=".2f")
+            alt.Tooltip("Dividend:Q", title="Dividendo", format=".3f")
         ]
-    ).add_params(hover)
+    )
+    .properties(height=260)
+)
 
-    line = base.mark_line(
-        strokeWidth=2,
-        color="#22c55e"
-    ).encode(
+labels_div = (
+    alt.Chart(df_div_filtrado)
+    .mark_text(
+        dy=-8,
+        color="#e5e7eb",
+        fontSize=11
+    )
+    .encode(
+        x=alt.X("Date:T"),
+        y=alt.Y("Dividend:Q"),
+        text=alt.Text("Dividend:Q", format=".3f")
+    )
+)
+
+chart_div_final = (
+    chart_div
+    + labels_div
+).configure_view(stroke=None)
+
+st.altair_chart(chart_div_final, use_container_width=True)
+
+st.markdown("#### Yield Mensal (%)")
+
+chart_yield = (
+    alt.Chart(df_div_filtrado)
+    .mark_line(strokeWidth=3, color="#22c55e")
+    .encode(
+        x=alt.X("Date:T", title=""),
         y=alt.Y(
             "Yield (%):Q",
             title="Yield (%)",
             axis=alt.Axis(format=".1f")
-        )
+        ),
+        tooltip=[
+            alt.Tooltip("Date:T", title="Mês"),
+            alt.Tooltip("Yield (%):Q", title="Yield", format=".2f")
+        ]
     )
+    .properties(height=260)
+)
 
-    points = base.mark_circle(size=60, color="#22c55e").encode(
+points_yield = (
+    alt.Chart(df_div_filtrado)
+    .mark_circle(size=55, color="#22c55e")
+    .encode(
+        x="Date:T",
         y="Yield (%):Q"
-    ).transform_filter(hover)
-
-    rule = base.mark_rule(color="#94a3b8").encode(
-        x="Date:T"
-    ).transform_filter(hover)
-
-    chart_combined = (
-        alt.layer(bars, line, points, rule)
-        .resolve_scale(y="independent")
-        .properties(height=320)
-        .interactive()
     )
+)
 
-    st.altair_chart(chart_combined, use_container_width=True)
+labels_yield = (
+    alt.Chart(df_div_filtrado)
+    .mark_text(
+        dy=-10,
+        color="#e5e7eb",
+        fontSize=11
+    )
+    .encode(
+        x="Date:T",
+        y="Yield (%):Q",
+        text=alt.Text("Yield (%):Q", format=".2f")
+    )
+)
+
+chart_yield_final = (
+    chart_yield
+    + points_yield
+    + labels_yield
+).configure_view(stroke=None)
+
+st.altair_chart(chart_yield_final, use_container_width=True)
+
 
 
 # =====================================================
