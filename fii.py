@@ -186,9 +186,9 @@ def info_card(titulo, itens):
 
     if len(itens) > 0:
         for i in itens:
-            if i == 'Distribuição de rendimentos inconsistente':
-                i = 'Distribuição de rendimentos não atrativa'
-                conteudo += f"<li>{i}</li>"
+            if 'inconsistente' in i:
+                conteudo += f"<li>❌ Distribuição de rendimentos não atrativa</li>"
+                st.write('OIII')
             else:
                 conteudo += f"<li>{i}</li>"
 
