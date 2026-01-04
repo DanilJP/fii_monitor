@@ -73,7 +73,10 @@ hr {
 </style>
 """, unsafe_allow_html=True)
 
-
+if st.button("🔄 Limpar cache de dados"):
+    st.cache_data.clear()
+    st.success("Cache de dados limpo com sucesso.")
+    st.rerun()
 # =====================================================
 # PARÂMETROS DO CRITÉRIO REFERA
 # =====================================================
@@ -131,7 +134,7 @@ score = df[df["Fundos"] == fii].Score.iloc[0]
 bloqueios = df[df["Fundos"] == fii].Bloqueios.iloc[0]
 motivos = df[df["Fundos"] == fii].Motivos.iloc[0]
 
-if score >= 4:
+if score >= 5:
     decisao = "🟢 APROVADO PELO CRITÉRIO REFERA"
 elif score >= 3:
     decisao = "🟡 EXIGE CAUTELA — EM OBSERVAÇÃO"
@@ -144,7 +147,7 @@ st.caption(f"Setor: {row['Setor']} • Análise quantitativa Refera")
 
 
 def decisao_card(decisao, score):
-    if score >= 4/6:
+    if score >= 5/6:
         bg = "#052e16"
         border = "#22c55e"
     elif score >= 3/6:
