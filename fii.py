@@ -217,7 +217,7 @@ score_perc = score/6
 decisao_card(decisao, score_perc)
 
 info_card("🔒 Bloqueios", bloqueios,True)
-info_card("🏆 Pontos Positivos", motivos)
+info_card("🏆 Pontos Positivos", motivos,False)
 
 # =====================================================
 # GRÁFICO
