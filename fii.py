@@ -143,7 +143,7 @@ st.caption(f"Setor: {row['Setor']} • Análise quantitativa")
 
 
 def decisao_card(decisao, score):
-    if score >= 5/6:
+    if score >= 6/6:
         bg = "#052e16"
         border = "#22c55e"
     elif score >= 3/6:
