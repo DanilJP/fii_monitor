@@ -170,7 +170,7 @@ def decisao_card(decisao, score):
 # BLOQUEIOS
 # =====================================================
 
-def info_card(titulo, itens):
+def info_card(titulo, itens,bloqueio):
     conteudo = ""
 
     if len(itens) > 0:
@@ -181,7 +181,7 @@ def info_card(titulo, itens):
             else:
                 conteudo += f"<li>{i}</li>"
 
-            if (row['DY (12M) Acumulado'] > 30) and (lim == 0):
+            if (row['DY (12M) Acumulado'] > 30) and (lim == 0) and bloqueio:
                 lim = 1
                 conteudo += f"<li>❌ Distribuição de rendimento muito alta, necessário verificar</li>"
             
@@ -216,7 +216,7 @@ else:
 score_perc = score/6
 decisao_card(decisao, score_perc)
 
-info_card("🔒 Bloqueios", bloqueios)
+info_card("🔒 Bloqueios", bloqueios,True)
 info_card("🏆 Pontos Positivos", motivos)
 
 # =====================================================
