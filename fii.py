@@ -178,8 +178,10 @@ def info_card(titulo, itens):
             if 'inconsistente' in i:
                 conteudo += f"<li>❌ Distribuição de rendimentos não atrativa</li>"
             elif 'rendimento' in i:
-                if row['DY (12M) Acumulado'] > 30:
+                if (row['DY (12M) Acumulado'] > 30) and ('❌' in i):
                     conteudo = f"<li>❌ Distribuição de rendimento muito alta, necessário verificar</li>"
+                elif (row['DY (12M) Acumulado'] > 30) and ('❌' not in i):
+                    pass
                 else:
                     conteudo += f"<li>{i}</li>"
             else:
@@ -203,7 +205,7 @@ def info_card(titulo, itens):
 
 if row['DY (12M) Acumulado'] > 30:
     score -= 1
-    
+
 if score == 6:
     decisao = "🟢 APROVADO PELO CRITÉRIO REFERA"
 elif score >= 3:
