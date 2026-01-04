@@ -174,19 +174,17 @@ def info_card(titulo, itens):
     conteudo = ""
 
     if len(itens) > 0:
+        lim = 0
         for i in itens:
             if 'inconsistente' in i:
                 conteudo += f"<li>❌ Distribuição de rendimentos não atrativa</li>"
-            elif 'rendimento' in i:
-                if (row['DY (12M) Acumulado'] > 30) and ('❌' in i):
-                    conteudo += f"<li>❌ Distribuição de rendimento muito alta, necessário verificar</li>"
-                    st.write('oi')
-                elif (row['DY (12M) Acumulado'] > 30) and ('❌' not in i):
-                    pass
-                else:
-                    conteudo += f"<li>{i}</li>"
             else:
                 conteudo += f"<li>{i}</li>"
+
+            if (row['DY (12M) Acumulado'] > 30) and (lim == 0):
+                lim = 1
+                conteudo += f"<li>❌ Distribuição de rendimento muito alta, necessário verificar</li>"
+            
 
 
     else:
