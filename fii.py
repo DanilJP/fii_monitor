@@ -124,6 +124,58 @@ retornos = hist["Close"].pct_change()
 vol = retornos.std() * (252 ** 0.5)
 
 # =====================================================
+# DIVIDENDOS + YIELD HISTÓRICO
+# =====================================================
+
+dividends = ticker.dividends
+
+df_yield = None
+
+if not dividends.empty:
+
+    # -------------------------------
+    # DIVIDENDOS MENSAIS
+    # -------------------------------
+    df_div = dividends.reset_index()
+    df_div.columns = ["Date", "Dividend"]
+
+    df_div["YearMonth"] = df_div["Date"].dt.strftime("%Y-%m")
+
+    df_div = (
+        df_div
+        .groupby("YearMonth")["Dividend"]
+        .sum()
+        .reset_index()
+    )
+
+    # -------------------------------
+    # PREÇO MÉDIO MENSAL
+    # -------------------------------
+    df_price = hist.reset_index()[["Date", "Close"]]
+    df_price["YearMonth"] = df_price["Date"].dt.strftime("%Y-%m")
+
+    df_price = (
+        df_price
+        .groupby("YearMonth")["Close"]
+        .mean()
+        .reset_index()
+    )
+
+    # -------------------------------
+    # MERGE + YIELD
+    # -------------------------------
+    df_yield = pd.merge(
+        df_div,
+        df_price,
+        on="YearMonth",
+        how="inner"
+    )
+    df_yield["Date"] = pd.to_datetime(df_yield["YearMonth"])
+
+    df_yield["Yield (%)"] = (df_yield["Dividend"] / df_yield["Close"]) * 100
+
+
+# =====================================================
 # DECISÃO FINAL
 # =====================================================
 score = df[df["Fundos"] == fii].Score.iloc[0]
@@ -277,6 +329,110 @@ chart = (
 
 st.altair_chart(chart, use_container_width=True)
 
+# =====================================================
+# GRÁFICO — DIVIDENDOS HISTÓRICOS (INTERATIVO)
+# =====================================================
+
+if df_yield is not None:
+
+    st.markdown("### Dividendos Históricos")
+
+    hover = alt.selection_point(
+        fields=["Date"],
+        nearest=True,
+        on="mouseover",
+        empty="none"
+    )
+
+    bars = (
+        alt.Chart(df_yield)
+        .mark_bar()
+        .encode(
+            x=alt.X("Date:T", title=""),
+            y=alt.Y("Dividend:Q", title="Dividendo (R$)"),
+            tooltip=[
+                alt.Tooltip("Date:T", title="Mês"),
+                alt.Tooltip("Dividend:Q", title="Dividendo", format=".3f")
+            ]
+        )
+    )
+
+    points = bars.mark_point(opacity=0).add_params(hover)
+
+    rule = (
+        alt.Chart(df_yield)
+        .mark_rule(color="#94a3b8")
+        .encode(
+            x="Date:T"
+        )
+        .transform_filter(hover)
+    )
+
+    chart_div = (
+        alt.layer(bars, points, rule)
+        .properties(height=260)
+        .interactive()
+    )
+
+    st.altair_chart(chart_div, use_container_width=True)
+
+# =====================================================
+# GRÁFICO — DIVIDENDOS x YIELD (INTERATIVO)
+# =====================================================
+
+if df_yield is not None:
+
+    st.markdown("### Dividendos x Yield Histórico")
+
+    hover = alt.selection_point(
+        fields=["Date"],
+        nearest=True,
+        on="mouseover",
+        clear="mouseout"
+    )
+
+
+    base = alt.Chart(df_yield).encode(
+        x=alt.X("Date:T", title="")
+    )
+
+    bars = base.mark_bar(opacity=0.55).encode(
+        y=alt.Y("Dividend:Q", title="Dividendo (R$)"),
+        tooltip=[
+            alt.Tooltip("Date:T", title="Mês"),
+            alt.Tooltip("Dividend:Q", title="Dividendo", format=".3f"),
+            alt.Tooltip("Yield (%):Q", title="Yield", format=".2f")
+        ]
+    ).add_params(hover)
+
+    line = base.mark_line(
+        strokeWidth=2,
+        color="#22c55e"
+    ).encode(
+        y=alt.Y(
+            "Yield (%):Q",
+            title="Yield (%)",
+            axis=alt.Axis(format=".1f")
+        )
+    )
+
+    points = base.mark_circle(size=60, color="#22c55e").encode(
+        y="Yield (%):Q"
+    ).transform_filter(hover)
+
+    rule = base.mark_rule(color="#94a3b8").encode(
+        x="Date:T"
+    ).transform_filter(hover)
+
+    chart_combined = (
+        alt.layer(bars, line, points, rule)
+        .resolve_scale(y="independent")
+        .properties(height=320)
+        .interactive()
+    )
+
+    st.altair_chart(chart_combined, use_container_width=True)
+
 
 # =====================================================
 # MÉTRICAS
@@ -317,7 +473,7 @@ with c4:
     metric_card('Volatilidade',f"{vol*100:.1f}%")
 
 with c5:
-    metric_card('Queda (últimos 10 dias)',f"{queda_pct:.2f}%")
+    metric_card('Movimentação (últimos 10 dias)',f"{queda_pct:.2f}%")
 
 st.markdown("<div class='section-title'>Estrutura do Fundo</div>", unsafe_allow_html=True)
 
@@ -343,3 +499,13 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+
+
+score_perfeitos = df[df.Score == 6].sort_values(['DY (3M) Acumulado'],ascending=False).sort_values(['DY (6M) Acumulado'],ascending=False).sort_values('P/VP').sort_values(['DY (12M) Acumulado'],ascending=False)
+# score_bons = df[(df.Score >= 4) & (df.Score < 6)]
+# score_obs = df[(df.Score == 3)]
+# score_ruins = df[(df.Score <= 2)]
+with st.expander('FIIs Oportunidades'):
+    for i in score_perfeitos.head().Fundos.unique():
+        st.write('-',i)
