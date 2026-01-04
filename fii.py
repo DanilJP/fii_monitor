@@ -405,7 +405,7 @@ chart_yield = (
         ),
         tooltip=[
             alt.Tooltip("Date:T", title="Mês"),
-            alt.Tooltip("Yield (%):Q", title="Yield", format=".2f")
+            alt.Tooltip("Yield (%):Q", title="Yield", format=".1f")
         ]
     )
     .properties(height=260)
@@ -430,7 +430,7 @@ labels_yield = (
     .encode(
         x="Date:T",
         y="Yield (%):Q",
-        text=alt.Text("Yield (%):Q", format=".2f")
+        text=alt.Text("Yield (%):Q", format=".1f")
     )
 )
 
