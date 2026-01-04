@@ -132,7 +132,7 @@ motivos = df[df["Fundos"] == fii].Motivos.iloc[0]
 
 if score == 6:
     decisao = "🟢 APROVADO PELO CRITÉRIO REFERA"
-elif score >= 4:
+elif score >= 3:
     decisao = "🟡 EXIGE CAUTELA — EM OBSERVAÇÃO"
 else:
     decisao = "🔴 BLOQUEADO — RISCO FORA DO CRITÉRIO"
