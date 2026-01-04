@@ -100,7 +100,7 @@ df = carregar_dados()
 # =====================================================
 # UI
 # =====================================================
-st.title("Análise Individual — Refera")
+st.title("Fiish - by Refera")
 st.caption("Modelo quantitativo focado em BLOQUEAR decisões ruins.")
 
 fii = st.selectbox("Selecione o FII", sorted(df["Fundos"].unique()))
