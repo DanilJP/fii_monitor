@@ -81,6 +81,7 @@ JANELA_QUEDA = 10
 CDI = 0.15
 SELIC_ANUAL = (1+CDI)*(1-0.225)      # proxy simples
 
+
 colunas_utilizadas = ['Fundos', 'Setor', 'Preço Atual (R$)', 'Liquidez Diária (milhões R$)',
        'P/VP', 'Último Dividendo', 'Dividend Yield', 'DY (3M) Acumulado',
        'DY (6M) Acumulado', 'DY (12M) Acumulado', 'DY Ano', 'Patrimônio Líquido (milhões R$)', 'Quant. Ativos',
