@@ -163,7 +163,7 @@ if not dividends.empty:
         .sum()
         .reset_index()
     )
-
+    st.write(df_div)
     # -------------------------------
     # PREÇO MÉDIO MENSAL
     # -------------------------------
@@ -339,7 +339,7 @@ chart = (
         ),
         tooltip=[
             alt.Tooltip("Date:T", title="Data"),
-            alt.Tooltip("Close:Q", title="Preço", format=".2f")
+            alt.Tooltip("Close:Q", title="Preço", format=".1f")
         ]
     )
     .properties(height=320)
@@ -347,6 +347,10 @@ chart = (
 
 st.altair_chart(chart, use_container_width=True)
 
+
+# =====================================================
+# GRÁFICO DE DIVIDENDOS
+# =====================================================
 
 st.markdown("### Dividendos & Yield")
 
@@ -364,7 +368,7 @@ chart_div = (
         y=alt.Y("Dividend:Q", title="Dividendo (R$)"),
         tooltip=[
             alt.Tooltip("Date:T", title="Mês"),
-            alt.Tooltip("Dividend:Q", title="Dividendo", format=".3f")
+            alt.Tooltip("Dividend:Q", title="Dividendo", format=".1f")
         ]
     )
     .properties(height=260)
@@ -380,7 +384,7 @@ labels_div = (
     .encode(
         x=alt.X("Date:T"),
         y=alt.Y("Dividend:Q"),
-        text=alt.Text("Dividend:Q", format=".3f")
+        text=alt.Text("Dividend:Q", format=".2f")
     )
 )
 
@@ -516,6 +520,8 @@ score_perfeitos = df[df.Score == 6].sort_values(['DY (3M) Acumulado'],ascending=
 # score_bons = df[(df.Score >= 4) & (df.Score < 6)]
 # score_obs = df[(df.Score == 3)]
 # score_ruins = df[(df.Score <= 2)]
+st.write('____________________')
 with st.expander('FIIs Oportunidades'):
     for i in score_perfeitos.head().Fundos.unique():
         st.write('-',i)
+
