@@ -163,7 +163,6 @@ if not dividends.empty:
         .sum()
         .reset_index()
     )
-    st.write(df_div)
     # -------------------------------
     # PREÇO MÉDIO MENSAL
     # -------------------------------
