@@ -521,6 +521,6 @@ score_perfeitos = df[df.Score == 6].sort_values(['DY (3M) Acumulado'],ascending=
 # score_ruins = df[(df.Score <= 2)]
 st.write('____________________')
 with st.expander('FIIs Oportunidades'):
-    for i in score_perfeitos.head().Fundos.unique():
+    for i in score_perfeitos.Fundos.unique():
         st.write('-',i)
 
