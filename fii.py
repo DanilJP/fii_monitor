@@ -5,6 +5,7 @@ import altair as alt
 import json
 from pathlib import Path
 from datetime import datetime
+from glob import glob
 
 # =====================================================
 # CONFIG
@@ -13,6 +14,13 @@ st.set_page_config(
     page_title="Refera — Análise Individual de FIIs",
     layout="centered"
 )
+
+# Datas
+dfs = glob('df_fiis/df_fiis_*')
+dfs = sorted(dfs)
+
+dia_hoje = dfs[-1].split('.')[0].split('_')[-1]
+
 
 is_mobile = st.session_state.get("is_mobile", False)
 
@@ -118,6 +126,7 @@ df = carregar_dados()
 # =====================================================
 st.title("Fiish - by Refera")
 st.caption("Modelo quantitativo focado em BLOQUEAR decisões ruins.")
+st.write('Última atualização :',dia_hoje)
 
 fii = st.selectbox("Selecione o FII", sorted(df["Fundos"].unique()))
 row = df[df["Fundos"] == fii].iloc[0]
