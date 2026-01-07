@@ -488,7 +488,7 @@ with c3:
     metric_card("Liquidez", f"{liq*1000:.0f} mil" if liq < 1 else f"{liq:.1f} mi")
 with c:
     curr_price = row['Preço Atual (R$)']
-    metric_card('Patrimônio',f"R$ {curr_price:.2f}")
+    metric_card('Preço Atual',f"R$ {curr_price:.2f}")
 
 
 
