@@ -475,7 +475,7 @@ def metric_card(label, value):
 
 st.markdown("<div class='section-title'>Valuation & Renda</div>", unsafe_allow_html=True)
 
-c1, c2, c3 = st.columns(3)
+c1, c2, c3,c = st.columns(4)
 
 with c1:
     metric_card("P / VP", f"{row['P/VP']:.2f}")
@@ -486,6 +486,10 @@ with c2:
 with c3:
     liq = row['Liquidez Diária (milhões R$)']
     metric_card("Liquidez", f"{liq*1000:.0f} mil" if liq < 1 else f"{liq:.1f} mi")
+with c:
+    curr_price = row['Preço Atual (R$)']
+    metric_card('Patrimônio',f"R$ {curr_price:.2f}")
+
 
 
 st.markdown("<div class='section-title'>Risco & Movimento</div>", unsafe_allow_html=True)
