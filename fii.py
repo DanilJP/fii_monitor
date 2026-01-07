@@ -128,6 +128,7 @@ st.title("Fiish - by Refera")
 st.caption("Modelo quantitativo focado em BLOQUEAR decisões ruins.")
 st.write('Última atualização :',dia_hoje)
 
+
 fii = st.selectbox("Selecione o FII", sorted(df["Fundos"].unique()))
 row = df[df["Fundos"] == fii].iloc[0]
 
@@ -286,7 +287,7 @@ if score == 6:
 elif score >= 3:
     decisao = "🟡 EXIGE CAUTELA — EM OBSERVAÇÃO"
 else:
-    decisao = "🔴 BLOQUEADO — RISCO FORA DO CRITÉRIO"
+    decisao = "🔴 BLOQUEADO — FORA DO CRITÉRIO"
 
 
 score_perc = score/6
