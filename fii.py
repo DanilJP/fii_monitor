@@ -15,13 +15,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# Datas
-dfs = glob('df_fiis/df_fiis_*')
-dfs = sorted(dfs)
-
-dia_hoje = dfs[-1].split('.')[0].split('_')[-1]
-
-
 is_mobile = st.session_state.get("is_mobile", False)
 
 st.markdown(
@@ -108,25 +101,26 @@ SELIC_ANUAL = (1+CDI)*(1-0.225)      # proxy simples
 colunas_utilizadas = ['Fundos', 'Setor', 'Preço Atual (R$)', 'Liquidez Diária (milhões R$)',
        'P/VP', 'Último Dividendo', 'Dividend Yield', 'DY (3M) Acumulado',
        'DY (6M) Acumulado', 'DY (12M) Acumulado', 'DY Ano', 'Patrimônio Líquido (milhões R$)', 'Quant. Ativos',
-       'Num. Cotistas (milhares)','Motivos','Bloqueios','Score']
+       'Num. Cotistas (milhares)','Motivos','Bloqueios','Score','ano_mes_dia']
 
 # =====================================================
 # LOAD DADOS
 # =====================================================
 def carregar_dados():
-    df_fiis = pd.read_parquet("df_fiis/df_fiis.parquet")
+    df_fiis = pd.read_parquet("df_fiis.parquet")
     df_fiis.dropna(subset=colunas_utilizadas,inplace=True)
     df_fiis = df_fiis[colunas_utilizadas]
-    return df_fiis
+    ano_mes_dia = df_fiis['ano_mes_dia'].unique()[0]
+    return df_fiis,ano_mes_dia
 
-df = carregar_dados()
+df, ano_mes_dia = carregar_dados()
 
 # =====================================================
 # UI
 # =====================================================
 st.title("Fiish - by Refera")
 st.caption("Modelo quantitativo focado em BLOQUEAR decisões ruins.")
-st.write('Última atualização :',dia_hoje)
+st.write('Última atualização :',ano_mes_dia)
 
 
 fii = st.selectbox("Selecione o FII", sorted(df["Fundos"].unique()))
@@ -212,10 +206,10 @@ st.caption(f"Setor: {row['Setor']} • Análise quantitativa")
 
 
 def decisao_card(decisao, score):
-    if score >= 6/6:
+    if score >= 7/7:
         bg = "#052e16"
         border = "#22c55e"
-    elif score >= 3/6:
+    elif score >= 4/7:
         bg = "#3f2f06"
         border = "#eab308"
     else:
@@ -282,15 +276,15 @@ def info_card(titulo, itens,bloqueio):
 if row['DY (12M) Acumulado'] > 30:
     score -= 1
 
-if score == 6:
+if score == 7:
     decisao = "🟢 APROVADO PELO CRITÉRIO REFERA"
-elif score >= 3:
+elif score >= 4:
     decisao = "🟡 EXIGE CAUTELA — EM OBSERVAÇÃO"
 else:
     decisao = "🔴 BLOQUEADO — FORA DO CRITÉRIO"
 
 
-score_perc = score/6
+score_perc = score/7
 decisao_card(decisao, score_perc)
 
 info_card("🔒 Bloqueios", bloqueios,True)
@@ -527,14 +521,37 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-
-score_perfeitos = df[df.Score == 6].sort_values(['DY (3M) Acumulado'],ascending=False).sort_values(['DY (6M) Acumulado'],ascending=False).sort_values('P/VP').sort_values(['DY (12M) Acumulado'],ascending=False)
+score_perfeitos = df[df.Score == 7].sort_values(['DY (3M) Acumulado'],ascending=False).sort_values(['DY (6M) Acumulado'],ascending=False).sort_values('P/VP').sort_values(['DY (12M) Acumulado'],ascending=False)
 # score_bons = df[(df.Score >= 4) & (df.Score < 6)]
 # score_obs = df[(df.Score == 3)]
 # score_ruins = df[(df.Score <= 2)]
+fiis_perfeitos = []
+volatilidades = []
+
+@st.cache_data
+def calcula_vols(score_perfeitos):
+    for i in score_perfeitos.Fundos.unique():
+        print(i)
+        ticker = yf.Ticker(f"{i}.SA")
+        hist = ticker.history(period="1y")
+
+        if len(hist) < 200:
+            st.error("Histórico insuficiente.")
+            st.stop()
+
+        retornos = hist["Close"].pct_change()
+        vol = retornos.std() * (252 ** 0.5)
+        volatilidades.append(round(vol*100,2))
+        fiis_perfeitos.append(i)
+    return fiis_perfeitos,volatilidades
+
+fiis_perfeitos,volatilidades = calcula_vols(score_perfeitos)
+x = pd.DataFrame(columns=('fii','vol'))
+x['fii'] = fiis_perfeitos
+x['vol'] = volatilidades
+
 st.write('____________________')
 with st.expander('FIIs Oportunidades'):
-    for i in score_perfeitos.Fundos.unique():
-        st.write('-',i)
+    for i in x.sort_values('vol').fii.unique():                                    
+        st.write('-',i,f'- {round(x[x['fii'] == i].vol.unique()[0],2)}%')
 
