@@ -101,7 +101,7 @@ SELIC_ANUAL = (1+CDI)*(1-0.225)      # proxy simples
 colunas_utilizadas = ['Fundos', 'Setor', 'Preço Atual (R$)', 'Liquidez Diária (milhões R$)',
        'P/VP', 'Último Dividendo', 'Dividend Yield', 'DY (3M) Acumulado',
        'DY (6M) Acumulado', 'DY (12M) Acumulado', 'DY Ano', 'Patrimônio Líquido (milhões R$)', 'Quant. Ativos',
-       'Num. Cotistas (milhares)','Motivos','Bloqueios','Score','ano_mes_dia']
+       'Num. Cotistas (milhares)','VPA','Motivos','Bloqueios','Score','ano_mes_dia']
 
 # =====================================================
 # LOAD DADOS
@@ -109,7 +109,7 @@ colunas_utilizadas = ['Fundos', 'Setor', 'Preço Atual (R$)', 'Liquidez Diária 
 def carregar_dados():
     df_fiis = pd.read_parquet("df_fiis.parquet")
     df_fiis.dropna(subset=colunas_utilizadas,inplace=True)
-    df_fiis = df_fiis[colunas_utilizadas]
+    # df_fiis = df_fiis[colunas_utilizadas]
     ano_mes_dia = df_fiis['ano_mes_dia'].unique()[0]
     return df_fiis,ano_mes_dia
 
@@ -469,7 +469,7 @@ def metric_card(label, value):
 
 st.markdown("<div class='section-title'>Valuation & Renda</div>", unsafe_allow_html=True)
 
-c1, c2, c3,c = st.columns(4)
+c1, c2, c3= st.columns(3)
 
 with c1:
     metric_card("P / VP", f"{row['P/VP']:.2f}")
@@ -480,9 +480,17 @@ with c2:
 with c3:
     liq = row['Liquidez Diária (milhões R$)']
     metric_card("Liquidez", f"{liq*1000:.0f} mil" if liq < 1 else f"{liq:.1f} mi")
-with c:
+
+st.write('')
+c1_1,c2_1 = st.columns(2)
+
+with c1_1:
     curr_price = row['Preço Atual (R$)']
     metric_card('Preço Atual',f"R$ {curr_price:.2f}")
+
+with c2_1:
+    vpa = round(int(row['VPA'])/100,2)
+    metric_card('VPA',f"R$ {vpa:.2f}")
 
 
 
@@ -494,7 +502,7 @@ with c4:
     metric_card('Volatilidade',f"{vol*100:.1f}%")
 
 with c5:
-    metric_card('Movimentação (últimos 10 dias)',f"{queda_pct:.2f}%")
+    metric_card(f'Movimentação (últimos {JANELA_QUEDA} dias)',f"{queda_pct:.2f}%")
 
 st.markdown("<div class='section-title'>Estrutura do Fundo</div>", unsafe_allow_html=True)
 
@@ -525,33 +533,9 @@ score_perfeitos = df[df.Score == 7].sort_values(['DY (3M) Acumulado'],ascending=
 # score_bons = df[(df.Score >= 4) & (df.Score < 6)]
 # score_obs = df[(df.Score == 3)]
 # score_ruins = df[(df.Score <= 2)]
-fiis_perfeitos = []
-volatilidades = []
-
-@st.cache_data
-def calcula_vols(score_perfeitos):
-    for i in score_perfeitos.Fundos.unique():
-        print(i)
-        ticker = yf.Ticker(f"{i}.SA")
-        hist = ticker.history(period="1y")
-
-        if len(hist) < 200:
-            st.error("Histórico insuficiente.")
-            st.stop()
-
-        retornos = hist["Close"].pct_change()
-        vol = retornos.std() * (252 ** 0.5)
-        volatilidades.append(round(vol*100,2))
-        fiis_perfeitos.append(i)
-    return fiis_perfeitos,volatilidades
-
-fiis_perfeitos,volatilidades = calcula_vols(score_perfeitos)
-x = pd.DataFrame(columns=('fii','vol'))
-x['fii'] = fiis_perfeitos
-x['vol'] = volatilidades
 
 st.write('____________________')
 with st.expander('FIIs Oportunidades - Volatilidade'):
-    for i in x.sort_values('vol').fii.unique():                                    
-        st.write('-',i,f'- {round(x[x['fii'] == i].vol.unique()[0],2)}%')
+    for i in score_perfeitos.sort_values('vol').fii.unique():                                    
+        st.write('-',i,f'- {round(score_perfeitos[score_perfeitos   ['fii'] == i].vol.unique()[0],2)}%')
 
