@@ -551,7 +551,7 @@ x['fii'] = fiis_perfeitos
 x['vol'] = volatilidades
 
 st.write('____________________')
-with st.expander('FIIs Oportunidades'):
+with st.expander('FIIs Oportunidades - Volatilidade'):
     for i in x.sort_values('vol').fii.unique():                                    
         st.write('-',i,f'- {round(x[x['fii'] == i].vol.unique()[0],2)}%')
 
