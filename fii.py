@@ -2,540 +2,318 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 import altair as alt
-import json
-from pathlib import Path
-from datetime import datetime
-from glob import glob
+from datetime import timedelta
 
 # =====================================================
 # CONFIG
 # =====================================================
 st.set_page_config(
-    page_title="Refera — Análise Individual de FIIs",
+    page_title="Fiish — by Refera",
     layout="centered"
 )
 
-is_mobile = st.session_state.get("is_mobile", False)
-
-st.markdown(
-    """
-    <script>
-    const isMobile = window.innerWidth < 768;
-    window.parent.postMessage(
-        { type: "streamlit:setSessionState", key: "is_mobile", value: isMobile },
-        "*"
-    );
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
-
+# =====================================================
+# ESTILO
+# =====================================================
 st.markdown("""
 <style>
-body {
-    background-color: #020617;
-}
+body { background-color: #020617; }
+h1,h2,h3 { color: #e5e7eb; }
+.caption,small { color: #94a3b8; }
 
-h1, h2, h3 {
-    color: #e5e7eb;
-}
-
-small, .caption {
-    color: #94a3b8;
-}
-
-hr {
-    border: none;
-    border-top: 1px solid #1e293b;
-    margin: 24px 0;
-}
-
-/* SECTION */
-.section-title {
-    margin-top: 32px;
-    margin-bottom: 12px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #e5e7eb;
-}
-
-/* METRIC CARD */
 .metric-card {
-    background-color: #020617;
-    border: 1px solid #1e293b;
-    border-radius: 14px;
-    padding: 18px;
-    text-align: center;
+    background:#020617;
+    border:1px solid #1e293b;
+    border-radius:14px;
+    padding:16px;
+    text-align:center;
 }
 
 .metric-label {
-    font-size: 13px;
-    color: #94a3b8;
+    font-size:13px;
+    color:#94a3b8;
 }
 
 .metric-value {
-    font-size: 22px;
-    font-weight: 600;
-    color: #f8fafc;
+    font-size:20px;
+    font-weight:600;
+    color:#f8fafc;
 }
 
-/* BLOCO TEXTO */
 .info-card {
-    background-color: #020617;
-    border: 1px solid #1e293b;
-    border-radius: 12px;
-    padding: 16px;
+    background:#020617;
+    border:1px solid #1e293b;
+    border-radius:12px;
+    padding:14px;
+}
+
+.section-title {
+    margin-top:32px;
+    margin-bottom:12px;
+    font-size:18px;
+    font-weight:600;
+    color:#e5e7eb;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # =====================================================
-# PARÂMETROS DO CRITÉRIO REFERA
-# =====================================================
-JANELA_QUEDA = 10
-CDI = 0.15
-SELIC_ANUAL = (1+CDI)*(1-0.225)      # proxy simples
-
-
-colunas_utilizadas = ['Fundos', 'Setor', 'Preço Atual (R$)', 'Liquidez Diária (milhões R$)',
-       'P/VP', 'Último Dividendo', 'Dividend Yield', 'DY (3M) Acumulado',
-       'DY (6M) Acumulado', 'DY (12M) Acumulado', 'DY Ano', 'Patrimônio Líquido (milhões R$)', 'Quant. Ativos',
-       'Num. Cotistas (milhares)','VPA','Motivos','Bloqueios','Score','ano_mes_dia']
-
-# =====================================================
 # LOAD DADOS
 # =====================================================
+@st.cache_data
 def carregar_dados():
-    df_fiis = pd.read_parquet("df_fiis.parquet")
-    df_fiis.dropna(subset=colunas_utilizadas,inplace=True)
-    # df_fiis = df_fiis[colunas_utilizadas]
-    ano_mes_dia = df_fiis['ano_mes_dia'].unique()[0]
-    return df_fiis,ano_mes_dia
+    df = pd.read_parquet("df_fiis.parquet")
+    data_ref = df["ano_mes_dia"].iloc[0]
+    return df, data_ref
 
-df, ano_mes_dia = carregar_dados()
+df, data_ref = carregar_dados()
 
 # =====================================================
-# UI
+# FUNÇÕES AUXILIARES
 # =====================================================
-st.title("Fiish - by Refera")
+def metric_card(label, value):
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-label">{label}</div>
+        <div class="metric-value">{value}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+def tem_bloqueio_critico(bloqueios):
+    palavras = [
+        "Volatilidade elevada",
+        "Yield trap",
+        "Patrimônio insuficiente",
+        "Distribuição inconsistente",
+        "Custos elevados"
+    ]
+    return any(any(p in b for p in palavras) for b in bloqueios)
+
+def classificar_status(score, bloqueios):
+    if score >= 8 and not tem_bloqueio_critico(bloqueios):
+        return "🟢 RECOMENDADO", "#052e16", "#22c55e"
+    elif score >= 4:
+        return "🟡 EM OBSERVAÇÃO", "#3f2f06", "#eab308"
+    else:
+        return "🔴 BLOQUEADO", "#450a0a", "#ef4444"
+
+def render_lista(titulo, itens):
+    conteudo = "".join([f"<li>{i}</li>" for i in itens]) or "<li>Nenhum item relevante</li>"
+    st.markdown(f"""
+    <div class="section-title">{titulo}</div>
+    <div class="info-card">
+        <ul style="margin:0;padding-left:18px;">
+            {conteudo}
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+# =====================================================
+# LISTAS MACRO
+# =====================================================
+df_core = df[(df["Score"] >= 8) & (~df["Bloqueios"].apply(tem_bloqueio_critico))]
+df_watch = df[(df["Score"] >= 4) & (df["Score"] < 8)]
+df_block = df[(df["Score"] <= 3) | (df["Bloqueios"].apply(tem_bloqueio_critico))]
+
+# =====================================================
+# HEADER
+# =====================================================
+st.title("Fiish — by Refera")
 st.caption("Modelo quantitativo focado em BLOQUEAR decisões ruins.")
-st.write('Última atualização :',ano_mes_dia)
+st.write("Última atualização:", data_ref)
 
-
-fii = st.selectbox("Selecione o FII", sorted(df["Fundos"].unique()))
+# =====================================================
+# ANÁLISE INDIVIDUAL
+# =====================================================
+st.markdown("---")
+fii = st.selectbox("Analisar FII individualmente", sorted(df["Fundos"].unique()))
 row = df[df["Fundos"] == fii].iloc[0]
 
 # =====================================================
-# HISTÓRICO DE PREÇOS
+# PREÇOS
 # =====================================================
-ticker = yf.Ticker(f"{fii}.SA")
-hist = ticker.history(period="1y")
+@st.cache_data
+def carregar_preco(fii):
+    return yf.Ticker(f"{fii}.SA").history(period="1y")
 
+hist = carregar_preco(fii)
 if len(hist) < 200:
     st.error("Histórico insuficiente.")
     st.stop()
 
-preco_atual = hist["Close"].iloc[-1]
-preco_passado = hist["Close"].iloc[-(JANELA_QUEDA + 1)]
-queda_pct = (preco_atual / preco_passado - 1) * 100
-
 retornos = hist["Close"].pct_change()
-vol = retornos.std() * (252 ** 0.5)
+vol = retornos.std() * (252 ** 0.5) * 100
 
-# =====================================================
-# DIVIDENDOS + YIELD HISTÓRICO
-# =====================================================
+preco_atual = hist["Close"].iloc[-1]
+preco_60 = hist["Close"].iloc[-61]
+mov_60 = (preco_atual / preco_60 - 1) * 100
 
-dividends = ticker.dividends
-
-df_yield = None
-
-if not dividends.empty:
-
-    # -------------------------------
-    # DIVIDENDOS MENSAIS
-    # -------------------------------
-    df_div = dividends.reset_index()
-    df_div.columns = ["Date", "Dividend"]
-
-    df_div["YearMonth"] = df_div["Date"].dt.strftime("%Y-%m")
-
-    df_div = (
-        df_div
-        .groupby("YearMonth")["Dividend"]
-        .sum()
-        .reset_index()
-    )
-    # -------------------------------
-    # PREÇO MÉDIO MENSAL
-    # -------------------------------
-    df_price = hist.reset_index()[["Date", "Close"]]
-    df_price["YearMonth"] = df_price["Date"].dt.strftime("%Y-%m")
-
-    df_price = (
-        df_price
-        .groupby("YearMonth")["Close"]
-        .mean()
-        .reset_index()
-    )
-
-    # -------------------------------
-    # MERGE + YIELD
-    # -------------------------------
-    df_yield = pd.merge(
-        df_div,
-        df_price,
-        on="YearMonth",
-        how="inner"
-    )
-    df_yield["Date"] = pd.to_datetime(df_yield["YearMonth"])
-
-    df_yield["Yield (%)"] = (df_yield["Dividend"] / df_yield["Close"]) * 100
-
-
-# =====================================================
-# DECISÃO FINAL
-# =====================================================
-score = df[df["Fundos"] == fii].Score.iloc[0]
-bloqueios = df[df["Fundos"] == fii].Bloqueios.iloc[0]
-motivos = df[df["Fundos"] == fii].Motivos.iloc[0]
-
-st.markdown(f"## {fii}")
-st.caption(f"Setor: {row['Setor']} • Análise quantitativa")
-
-
-def decisao_card(decisao, score):
-    if score >= 7/7:
-        bg = "#052e16"
-        border = "#22c55e"
-    elif score >= 4/7:
-        bg = "#3f2f06"
-        border = "#eab308"
-    else:
-        bg = "#450a0a"
-        border = "#ef4444"
-
-    st.markdown(
-        f"""
-        <div style="
-            background-color: {bg};
-            border-left: 6px solid {border};
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 28px;
-        ">
-            <div style="font-size:18px;font-weight:600;color:#f8fafc;">
-                {decisao}
-            </div>
-            <div style="margin-top:6px;font-size:13px;color:#cbd5f5;">
-                Score Refera: {score*100:.0f}%
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-# =====================================================
-# BLOQUEIOS
-# =====================================================
-
-def info_card(titulo, itens,bloqueio):
-    conteudo = ""
-
-    if len(itens) > 0:
-        lim = 0
-        for i in itens:
-            if 'inconsistente' in i:
-                conteudo += f"<li>❌ Distribuição de rendimentos não atrativa</li>"
-            else:
-                conteudo += f"<li>{i}</li>"
-
-            if (row['DY (12M) Acumulado'] > 30) and (lim == 0) and bloqueio:
-                lim = 1
-                conteudo += f"<li>❌ Distribuição de rendimento muito alta, necessário verificar</li>"
-            
-
-
-    else:
-        conteudo = "<li>Nenhum item relevante.</li>"
-
-    st.markdown(
-        f"""
-        <div class="section-title">{titulo}</div>
-        <div class="info-card">
-            <ul style="margin:0;padding-left:18px;">
-                {conteudo}
-            </ul>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-if row['DY (12M) Acumulado'] > 30:
-    score -= 1
-
-if score == 7:
-    decisao = "🟢 APROVADO PELO CRITÉRIO REFERA"
-elif score >= 4:
-    decisao = "🟡 EXIGE CAUTELA — EM OBSERVAÇÃO"
+if mov_60 > 5:
+    regime = "Tendência de Alta"
+elif mov_60 < -5:
+    regime = "Tendência de Queda"
 else:
-    decisao = "🔴 BLOQUEADO — FORA DO CRITÉRIO"
-
-
-score_perc = score/7
-decisao_card(decisao, score_perc)
-
-info_card("🔒 Bloqueios", bloqueios,True)
-info_card("🏆 Pontos Positivos", motivos,False)
+    regime = "Movimento Lateral"
 
 # =====================================================
-# GRÁFICO
+# DECISÃO
 # =====================================================
-st.markdown("### Histórico de Preço (12M)")
-df_chart = hist.reset_index()[["Date", "Close"]]
+status, cor, borda = classificar_status(int(row["Score"]), row["Bloqueios"])
+
+st.markdown(f"""
+<div style="
+    background:{cor};
+    border-left:6px solid {borda};
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:24px;">
+    <div style="font-size:18px;font-weight:600;color:#f8fafc;">{status}</div>
+    <div style="font-size:13px;color:#cbd5f5;margin-top:6px;">
+        Score Refera: {int(row['Score'])}/9
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+render_lista("🔒 Bloqueios", row["Bloqueios"])
+render_lista("🏆 Pontos Positivos", row["Motivos"])
 
 # =====================================================
-# SELETOR DE PERÍODO
+# MÉTRICAS — TODOS OS CARDS
+# =====================================================
+
+# Valuation & Renda
+st.markdown("<div class='section-title'>Valuation & Renda</div>", unsafe_allow_html=True)
+c1, c2, c3, c4 = st.columns(4)
+with c1: metric_card("Preço Atual", f"R$ {row['Preço Atual (R$)']:.2f}")
+with c2: metric_card("P / VP", f"{row['P/VP']:.2f}")
+with c3: metric_card("P / VPA", f"{row['P/VPA']:.2f}")
+with c4: metric_card("DY 12M", f"{row['DY (12M) Acumulado']:.2f}%")
+
+# Risco & Mercado
+st.markdown("<div class='section-title'>Risco & Mercado</div>", unsafe_allow_html=True)
+c1, c2, c3 = st.columns(3)
+with c1: metric_card("Volatilidade", f"{vol:.1f}%")
+with c2: metric_card("Regime de Preço", regime)
+with c3: metric_card("Movimento 60d", f"{mov_60:.2f}%")
+
+# Estrutura do Fundo
+st.markdown("<div class='section-title'>Estrutura do Fundo</div>", unsafe_allow_html=True)
+c1, c2, c3, c4 = st.columns(4)
+with c1: metric_card("Patrimônio", f"R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi")
+with c2: metric_card("Ativos", int(row["Quant. Ativos"]))
+with c3: metric_card("Cotistas", f"{int(row['Num. Cotistas (milhares)']*1000):,}".replace(",", "."))
+with c4:
+    liq = row["Liquidez Diária (milhões R$)"]
+    metric_card("Liquidez", f"{liq:.1f} mi" if liq >= 1 else f"{liq*1000:.0f} mil")
+
+
+def parse_taxa(valor):
+    """
+    Converte taxas no formato string para float.
+    Retorna None se não houver informação válida.
+    """
+    try:
+        if pd.isna(valor):
+            return None
+        valor = (
+            str(valor)
+            .lower()
+            .replace("a.a", "")
+            .replace("%", "")
+            .replace(",", ".")
+            .strip()
+        )
+        return float(valor)
+    except:
+        return None
+
+
+# Custos
+st.markdown("<div class='section-title'>Custos & Eficiência</div>", unsafe_allow_html=True)
+
+c1, c2, c3 = st.columns(3)
+
+tx_adm = parse_taxa(row["Tax. Administração"])
+tx_gestao = parse_taxa(row["Tax. Gestão"])
+tx_perf = parse_taxa(row["Tax. Performance"])
+
+with c1:
+    metric_card(
+        "Taxa Administração",
+        f"{tx_adm:.2f}%" if tx_adm is not None else "Sem informação"
+    )
+
+with c2:
+    metric_card(
+        "Taxa Gestão",
+        f"{tx_gestao:.2f}%" if tx_gestao is not None else "Sem informação"
+    )
+
+with c3:
+    metric_card(
+        "Taxa Performance",
+        f"{tx_perf:.2f}%" if tx_perf is not None and tx_perf > 0 else "Não possui"
+    )
+
+
+# Crescimento
+st.markdown("<div class='section-title'>Patrimônio & Crescimento</div>", unsafe_allow_html=True)
+c1, c2, c3 = st.columns(3)
+with c1: metric_card("Variação Patrimonial", row["Variação Patrimonial"])
+with c2: metric_card("Rentab. Patrimonial", row["Rentab. Patr. Acumulada"])
+with c3: metric_card("Rentab. Total", row["Rentab. Acumulada"])
+
+# =====================================================
+# GRÁFICO DE PREÇO
 # =====================================================
 st.markdown("### Histórico de Preço")
+periodo = st.radio("Período", ["1M","3M","6M","12M"], index=3, horizontal=True)
+dias = {"1M":30,"3M":90,"6M":180,"12M":365}[periodo]
 
-periodo = st.radio(
-    "Período",
-    ["1M", "3M", "6M", "12M"],
-    index = 3,
-    horizontal=True,
-    label_visibility="collapsed",
-    
-)
+df_chart = hist.reset_index()
+df_chart = df_chart[df_chart["Date"] >= df_chart["Date"].max() - timedelta(days=dias)]
 
-mapa_periodo = {
-    "1M": 30,
-    "3M": 90,
-    "6M": 180,
-    "12M": 365
-}
-
-dias = mapa_periodo[periodo]
-
-# =====================================================
-# PREPARAÇÃO DOS DADOS
-# =====================================================
-df_chart = hist.reset_index()[["Date", "Close"]]
-
-data_inicio = df_chart["Date"].max() - pd.Timedelta(days=dias)
-df_filtrado = df_chart[df_chart["Date"] >= data_inicio]
-
-# =====================================================
-# GRÁFICO
-# =====================================================
-chart = (
-    alt.Chart(df_filtrado)
-    .mark_line(strokeWidth=2)
-    .encode(
-        x=alt.X("Date:T", title=""),
-        y=alt.Y(
-            "Close:Q",
-            title="Preço (R$)",
-            scale=alt.Scale(zero=False, nice=False)
-        ),
-        tooltip=[
-            alt.Tooltip("Date:T", title="Data"),
-            alt.Tooltip("Close:Q", title="Preço", format=".1f")
-        ]
-    )
-    .properties(height=320)
-)
+chart = alt.Chart(df_chart).mark_line(strokeWidth=2).encode(
+    x="Date:T",
+    y=alt.Y("Close:Q", scale=alt.Scale(zero=False)),
+    tooltip=["Date:T","Close:Q"]
+).properties(height=320)
 
 st.altair_chart(chart, use_container_width=True)
 
-
 # =====================================================
-# GRÁFICO DE DIVIDENDOS
+# VISÃO MACRO
 # =====================================================
-
-st.markdown("### Dividendos & Yield")
-
-dias = mapa_periodo[periodo]
-data_inicio = df_yield["Date"].max() - pd.Timedelta(days=dias)
-df_div_filtrado = df_yield[df_yield["Date"] >= data_inicio]
-
-st.markdown("#### Dividendos Mensais")
-
-chart_div = (
-    alt.Chart(df_div_filtrado)
-    .mark_bar(color="#38bdf8")
-    .encode(
-        x=alt.X("Date:T", title="", axis=alt.Axis(labelAngle=0)),
-        y=alt.Y("Dividend:Q", title="Dividendo (R$)"),
-        tooltip=[
-            alt.Tooltip("Date:T", title="Mês"),
-            alt.Tooltip("Dividend:Q", title="Dividendo", format=".1f")
-        ]
-    )
-    .properties(height=260)
-)
-
-labels_div = (
-    alt.Chart(df_div_filtrado)
-    .mark_text(
-        dy=-8,
-        color="#e5e7eb",
-        fontSize=11
-    )
-    .encode(
-        x=alt.X("Date:T"),
-        y=alt.Y("Dividend:Q"),
-        text=alt.Text("Dividend:Q", format=".2f")
-    )
-)
-
-chart_div_final = (
-    chart_div
-    + labels_div
-).configure_view(stroke=None)
-
-st.altair_chart(chart_div_final, use_container_width=True)
-
-st.markdown("#### Yield Mensal (%)")
-
-chart_yield = (
-    alt.Chart(df_div_filtrado)
-    .mark_line(strokeWidth=3, color="#22c55e")
-    .encode(
-        x=alt.X("Date:T", title=""),
-        y=alt.Y(
-            "Yield (%):Q",
-            title="Yield (%)",
-            axis=alt.Axis(format=".1f")
-        ),
-        tooltip=[
-            alt.Tooltip("Date:T", title="Mês"),
-            alt.Tooltip("Yield (%):Q", title="Yield", format=".1f")
-        ]
-    )
-    .properties(height=260)
-)
-
-points_yield = (
-    alt.Chart(df_div_filtrado)
-    .mark_circle(size=55, color="#22c55e")
-    .encode(
-        x="Date:T",
-        y="Yield (%):Q"
-    )
-)
-
-labels_yield = (
-    alt.Chart(df_div_filtrado)
-    .mark_text(
-        dy=-10,
-        color="#e5e7eb",
-        fontSize=11
-    )
-    .encode(
-        x="Date:T",
-        y="Yield (%):Q",
-        text=alt.Text("Yield (%):Q", format=".1f")
-    )
-)
-
-chart_yield_final = (
-    chart_yield
-    + points_yield
-    + labels_yield
-).configure_view(stroke=None)
-
-st.altair_chart(chart_yield_final, use_container_width=True)
-
-
-
-# =====================================================
-# MÉTRICAS
-# =====================================================
-st.markdown("### Indicadores")
-
-def metric_card(label, value):
-    st.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-label">{label}</div>
-            <div class="metric-value">{value}</div>
+with st.expander("🟢 Core Refera — FIIs Aprovados (Score 8–9)"):
+    for _, r in df_core.sort_values(["Score", "DY (12M) Acumulado"], ascending=False).iterrows():
+        st.markdown(f"""
+        <div style="
+            background:#052e16;
+            border:1px solid #22c55e;
+            border-radius:10px;
+            padding:12px;
+            margin-bottom:8px;">
+            <strong>{r['Fundos']}</strong><br>
+            <small>
+                Score {int(r['Score'])}/9 • DY 12M {r['DY (12M) Acumulado']:.1f}% • P/VP {r['P/VP']:.2f}
+            </small>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        """, unsafe_allow_html=True)
 
-st.markdown("<div class='section-title'>Valuation & Renda</div>", unsafe_allow_html=True)
+with st.expander("🟡 Watchlist — Em Observação"):
+    for _, r in df_watch.sort_values("Score", ascending=False).iterrows():
+        st.write(f"- {r['Fundos']} | Score {int(r['Score'])}/9")
 
-c1, c2, c3= st.columns(3)
-
-with c1:
-    metric_card("P / VP", f"{row['P/VP']:.2f}")
-
-with c2:
-    metric_card("DY 12M", f"{row['DY (12M) Acumulado']:.2f}%")
-
-with c3:
-    liq = row['Liquidez Diária (milhões R$)']
-    metric_card("Liquidez", f"{liq*1000:.0f} mil" if liq < 1 else f"{liq:.1f} mi")
-
-st.write('')
-c1_1,c2_1 = st.columns(2)
-
-with c1_1:
-    curr_price = row['Preço Atual (R$)']
-    metric_card('Preço Atual',f"R$ {curr_price:.2f}")
-
-with c2_1:
-    vpa = round(int(row['VPA'])/100,2)
-    metric_card('VPA',f"R$ {vpa:.2f}")
-
-
-
-st.markdown("<div class='section-title'>Risco & Movimento</div>", unsafe_allow_html=True)
-
-c4, c5 = st.columns(2)
-
-with c4:
-    metric_card('Volatilidade',f"{vol*100:.1f}%")
-
-with c5:
-    metric_card(f'Movimentação (últimos {JANELA_QUEDA} dias)',f"{queda_pct:.2f}%")
-
-st.markdown("<div class='section-title'>Estrutura do Fundo</div>", unsafe_allow_html=True)
-
-c6, c7, c8 = st.columns(3)
-
-with c6:
-    metric_card('Patrimônio',f"R$ {row['Patrimônio Líquido (milhões R$)']:.1f} mi")
-
-with c7:
-    metric_card('Ativos',f"{int(row['Quant. Ativos'])}")
-
-with c8:
-    metric_card('Cotistas', f"{int(row['Num. Cotistas (milhares)']*1000):,}".replace(",", "."))
-
-
-st.markdown(
-    """
-    <hr>
-    <small>
-    Refera não recomenda ativos.  
-    Seu papel é <strong>bloquear decisões ruins</strong> antes que elas entrem na sua carteira.
-    </small>
-    """,
-    unsafe_allow_html=True
-)
-
-score_perfeitos = df[df.Score == 7].sort_values(['DY (3M) Acumulado'],ascending=False).sort_values(['DY (6M) Acumulado'],ascending=False).sort_values('P/VP').sort_values(['DY (12M) Acumulado'],ascending=False)
-# score_bons = df[(df.Score >= 4) & (df.Score < 6)]
-# score_obs = df[(df.Score == 3)]
-# score_ruins = df[(df.Score <= 2)]
-
-st.write('____________________')
-with st.expander('FIIs Oportunidades - Volatilidade'):
-    for i in score_perfeitos.sort_values('vol').fii.unique():                                    
-        st.write('-',i,f'- {round(score_perfeitos[score_perfeitos   ['fii'] == i].vol.unique()[0],2)}%')
-
+with st.expander("🔴 FIIs Bloqueados"):
+    for _, r in df_block.iterrows():
+        st.write(f"- {r['Fundos']} | {r['Bloqueios'][0]}")
+# =====================================================
+# FOOTER
+# =====================================================
+st.markdown("""
+<hr>
+<small>
+Refera não recomenda ativos.<br>
+Seu papel é <strong>bloquear decisões ruins</strong>.
+</small>
+""", unsafe_allow_html=True)
