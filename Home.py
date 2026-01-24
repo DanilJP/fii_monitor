@@ -12,6 +12,9 @@ st.set_page_config(
     layout="centered"
 )
 
+motivos_max = 9
+motivos_obs = 6
+
 # =====================================================
 # ESTILO
 # =====================================================
@@ -57,6 +60,10 @@ h1,h2,h3 { color: #e5e7eb; }
 </style>
 """, unsafe_allow_html=True)
 
+#button to clean cache 
+if st.button("🧹 Limpar Cache de Dados"):
+    st.cache_data.clear()
+
 # =====================================================
 # LOAD DADOS
 # =====================================================
@@ -79,20 +86,10 @@ def metric_card(label, value):
     </div>
     """, unsafe_allow_html=True)
 
-def tem_bloqueio_critico(bloqueios):
-    palavras = [
-        "Volatilidade elevada",
-        "Yield trap",
-        "Patrimônio insuficiente",
-        "Distribuição inconsistente",
-        "Custos elevados"
-    ]
-    return any(any(p in b for p in palavras) for b in bloqueios)
-
 def classificar_status(score, bloqueios):
-    if score >= 8 and not tem_bloqueio_critico(bloqueios):
+    if score >= motivos_max:
         return "🟢 RECOMENDADO", "#052e16", "#22c55e"
-    elif score >= 4:
+    elif score >= motivos_obs:
         return "🟡 EM OBSERVAÇÃO", "#3f2f06", "#eab308"
     else:
         return "🔴 BLOQUEADO", "#450a0a", "#ef4444"
@@ -111,9 +108,9 @@ def render_lista(titulo, itens):
 # =====================================================
 # LISTAS MACRO
 # =====================================================
-df_core = df[(df["Score"] >= 8) & (~df["Bloqueios"].apply(tem_bloqueio_critico))]
-df_watch = df[(df["Score"] >= 4) & (df["Score"] < 8)]
-df_block = df[(df["Score"] <= 3) | (df["Bloqueios"].apply(tem_bloqueio_critico))]
+df_core = df[(df["Score"] >= motivos_max)]
+df_watch = df[(df["Score"] >= motivos_obs) & (df["Score"] < motivos_max)]
+df_block = df[(df["Score"] < motivos_obs)]
 
 # =====================================================
 # HEADER
@@ -128,32 +125,8 @@ st.write("Última atualização:", data_ref)
 st.markdown("---")
 fii = st.selectbox("Analisar FII individualmente", sorted(df["Fundos"].unique()))
 row = df[df["Fundos"] == fii].iloc[0]
+st.markdown(f"Setor : " + row["Setor"])
 
-# =====================================================
-# PREÇOS
-# =====================================================
-@st.cache_data
-def carregar_preco(fii):
-    return yf.Ticker(f"{fii}.SA").history(period="1y")
-
-hist = carregar_preco(fii)
-if len(hist) < 200:
-    st.error("Histórico insuficiente.")
-    st.stop()
-
-retornos = hist["Close"].pct_change()
-vol = retornos.std() * (252 ** 0.5) * 100
-
-preco_atual = hist["Close"].iloc[-1]
-preco_60 = hist["Close"].iloc[-61]
-mov_60 = (preco_atual / preco_60 - 1) * 100
-
-if mov_60 > 5:
-    regime = "Tendência de Alta"
-elif mov_60 < -5:
-    regime = "Tendência de Queda"
-else:
-    regime = "Movimento Lateral"
 
 # =====================================================
 # DECISÃO
@@ -169,7 +142,7 @@ st.markdown(f"""
     margin-bottom:24px;">
     <div style="font-size:18px;font-weight:600;color:#f8fafc;">{status}</div>
     <div style="font-size:13px;color:#cbd5f5;margin-top:6px;">
-        Score Refera: {int(row['Score'])}/9
+        Score Refera: {int(row['Score'])}/{motivos_max}
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -192,15 +165,15 @@ with c4: metric_card("DY 12M", f"{row['DY (12M) Acumulado']:.2f}%")
 # Risco & Mercado
 st.markdown("<div class='section-title'>Risco & Mercado</div>", unsafe_allow_html=True)
 c1, c2, c3 = st.columns(3)
-with c1: metric_card("Volatilidade", f"{vol:.1f}%")
-with c2: metric_card("Regime de Preço", regime)
-with c3: metric_card("Movimento 60d", f"{mov_60:.2f}%")
+with c1: metric_card("Volatilidade", f"{row['vol']}%")
+with c2: metric_card("Regime de Preço", f"{row['regimes']}")
+with c3: metric_card("Setor", row["Setor"])
 
 # Estrutura do Fundo
 st.markdown("<div class='section-title'>Estrutura do Fundo</div>", unsafe_allow_html=True)
 c1, c2, c3, c4 = st.columns(4)
 with c1: metric_card("Patrimônio", f"R$ {row['Patrimônio Líquido (milhões R$)']:.0f} mi")
-with c2: metric_card("Ativos", int(row["Quant. Ativos"]))
+with c2: metric_card("Ativos/Imóveis", int(row["Quant. Ativos"]))
 with c3: metric_card("Cotistas", f"{int(row['Num. Cotistas (milhares)']*1000):,}".replace(",", "."))
 with c4:
     liq = row["Liquidez Diária (milhões R$)"]
@@ -267,11 +240,19 @@ with c3: metric_card("Rentab. Total", row["Rentab. Acumulada"])
 # GRÁFICO DE PREÇO
 # =====================================================
 st.markdown("### Histórico de Preço")
-periodo = st.radio("Período", ["1M","3M","6M","12M"], index=3, horizontal=True)
-dias = {"1M":30,"3M":90,"6M":180,"12M":365}[periodo]
+periodo = st.radio("Período", ["1M","3M","6M","1y",'2y','3y','4y','5y'], index=3, horizontal=True)
+dias = {"1M":30,"3M":90,"6M":180,"1y":365,"2y":730,"3y":1095,"4y":1460,"5y":1825}[periodo]
+
+
+ticker = yf.Ticker(f"{fii}.SA")
+hist = ticker.history(period="5y")
 
 df_chart = hist.reset_index()
 df_chart = df_chart[df_chart["Date"] >= df_chart["Date"].max() - timedelta(days=dias)]
+
+# add a button to do a roolling mean of 28 days
+if st.checkbox("Mostrar Média Móvel (28 dias)"):
+    df_chart["Close"] = df_chart["Close"].rolling(window=28).mean()
 
 chart = alt.Chart(df_chart).mark_line(strokeWidth=2).encode(
     x="Date:T",
@@ -284,7 +265,7 @@ st.altair_chart(chart, use_container_width=True)
 # =====================================================
 # VISÃO MACRO
 # =====================================================
-with st.expander("🟢 Core Refera — FIIs Aprovados (Score 8–9)"):
+with st.expander("🟢 Core Refera — FIIs Aprovados"):
     for _, r in df_core.sort_values(["Score", "DY (12M) Acumulado"], ascending=False).iterrows():
         st.markdown(f"""
         <div style="
@@ -295,7 +276,7 @@ with st.expander("🟢 Core Refera — FIIs Aprovados (Score 8–9)"):
             margin-bottom:8px;">
             <strong>{r['Fundos']}</strong><br>
             <small>
-                Score {int(r['Score'])}/9 • DY 12M {r['DY (12M) Acumulado']:.1f}% • P/VP {r['P/VP']:.2f}
+                Score {int(r['Score'])}/{motivos_max} • DY 12M {r['DY (12M) Acumulado']:.1f}% • P/VP {r['P/VP']:.2f}
             </small>
         </div>
         """, unsafe_allow_html=True)
