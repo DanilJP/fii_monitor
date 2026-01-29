@@ -12,8 +12,6 @@ st.set_page_config(
     layout="centered"
 )
 
-motivos_max = 9
-motivos_obs = 6
 
 # =====================================================
 # ESTILO
@@ -74,7 +72,8 @@ def carregar_dados():
     return df, data_ref
 
 df, data_ref = carregar_dados()
-
+motivos_max = df["Score"].max()
+motivos_obs = motivos_max-2
 # =====================================================
 # FUNÇÕES AUXILIARES
 # =====================================================
@@ -86,10 +85,10 @@ def metric_card(label, value):
     </div>
     """, unsafe_allow_html=True)
 
-def classificar_status(score, bloqueios):
+def classificar_status(score):
     if score >= motivos_max:
         return "🟢 RECOMENDADO", "#052e16", "#22c55e"
-    elif score >= motivos_obs:
+    elif score >= motivos_obs and score < motivos_max:
         return "🟡 EM OBSERVAÇÃO", "#3f2f06", "#eab308"
     else:
         return "🔴 BLOQUEADO", "#450a0a", "#ef4444"
@@ -131,7 +130,7 @@ st.markdown(f"Setor : " + row["Setor"])
 # =====================================================
 # DECISÃO
 # =====================================================
-status, cor, borda = classificar_status(int(row["Score"]), row["Bloqueios"])
+status, cor, borda = classificar_status(int(row["Score"]))
 
 st.markdown(f"""
 <div style="
@@ -282,8 +281,8 @@ with st.expander("🟢 Core Refera — FIIs Aprovados"):
         """, unsafe_allow_html=True)
 
 with st.expander("🟡 Watchlist — Em Observação"):
-    for _, r in df_watch.sort_values("Score", ascending=False).iterrows():
-        st.write(f"- {r['Fundos']} | Score {int(r['Score'])}/9")
+    for _, r in df_watch.sort_values('DY (12M) Acumulado',ascending=False).sort_values("Score", ascending=False).iterrows():
+        st.write(f"- {r['Fundos']} | Score {int(r['Score'])}/9 | P/VP : {r['P/VP']} | DY 12M: {r['DY (12M) Acumulado']:.1f}%")
 
 with st.expander("🔴 FIIs Bloqueados"):
     for _, r in df_block.iterrows():
